@@ -29,11 +29,11 @@ class DNA(object):
     else:
       self.promoter = False
 
+    # make a dict with key of feature number and val of the base
     index = range(0, len(sequence))
     self.features = {}
     for index, feature in zip(index, sequence):
       self.features[index] = feature
-
 
 
   def get_info(self):

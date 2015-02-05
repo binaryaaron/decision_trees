@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import division
 """ 
 process_data.py is the helper file that will read DNA promoter data
 and create objects from that. It is a part of the CS529 Machine Learning project
@@ -11,6 +12,7 @@ import csv
 import id3
 import process_data
 import math
+from feature import feature
 from dna import DNA
 import os
 from pylab import *
@@ -26,40 +28,34 @@ __email__ = "agonzales@cs.unm.edu"
 
 
 
-def count_occurances(data, feature_index):
+def count_occurances(data, feature_index, feature_vec):
   """ 
     Main method to count the instances of occurance at each feature. 
-    Builds two key dictionaries that keep track of counts for each dna base in a
-    feature for further processing. 
+    Builds a feature object.
+    data
+   
+    Args:
+      data (list): list of bases (column vector)
+      feature_index: annoying index for getting the right vector
+      feature_vec: list that holds all feature objects
+
+    Returns:
+      none
   """
   # build pos and neg lists with just the individual base 
   pos = [pro.features[feature_index] for pro in data if pro.promoter == True]
   neg = [ pro.features[feature_index] for pro in data if pro.promoter == False]
 
-  # debugging
-  # print "Positive length: %d" % len(pos)
-  # print "Negative length: %d" % len(neg)
-  count = (len(pos), len(neg))
+  # get base type totals and make a feature object
+  base_a = (pos.count('a'), neg.count('a'), pos.count('a') + neg.count('a')  )
+  base_c = (pos.count('c'), neg.count('c'), pos.count('c') + neg.count('c')  )
+  base_g = (pos.count('g'), neg.count('g'), pos.count('g') + neg.count('g')  )
+  base_t = (pos.count('t'), neg.count('t'), pos.count('t') + neg.count('t')  )
 
-  # get base type totals for pos and neg sets
-  pos_totals = { 
-      'a':pos.count('a'),
-      'c':pos.count('c'),
-      'g':pos.count('g'),
-      't':pos.count('t'),
-      'count': len(pos)
-      }  
-  neg_totals = { 
-      'a':neg.count('a'),
-      'c':neg.count('c'),
-      'g':neg.count('g'),
-      't':neg.count('t'),
-      'count': len(neg)
-      }  
-  # print 'Positive Totals: %s ' % pos_totals
-  # print 'Negative Totals: %s ' % neg_totals
-
-  return (pos_totals, neg_totals)
+  f =  feature(len(pos) + len(neg), base_a, base_c, base_g, base_t)
+  feature_vec.append(f)
+  # f.get_info()
+  # return (pos_totals, neg_totals)
 
 
 def build_node():
@@ -69,36 +65,46 @@ def build_node():
 
 
 
-def entropy(feature):
+def entropy(base, n):
   """ Calculates the entropy of a set of attributes
-  where S is the set and p the proportion of S beloning to class I. is 
+  Attributes:
+    base - Feature
   """
   # convenience
-  n = len(feature)
 
   # base case
-  if n <= 1:
+  if base[2] <= 1:
     return 0
 
-  for p in probability:
-    entropy -= p * log(p, base=2)
+  p_pos = base[0]/base[2]
+  p_neg = base[1]/base[2]
+  # print math.log(p, 2)
+  print "p pos: %f" % p_pos
+  print "p neg: %f" % p_neg
+  entpos = -1* (p_pos * math.log(p_pos, 2) )
+  entneg = -1* (p_neg * math.log(p_neg, 2) )
+  print "ent pos: %f" % entneg
+  print "ent neg: %f" % entneg
+  ent = entpos + entneg
 
-  return entropy
+  # ent = (p_pos * math.log(p_pos, 2) ) - (p_neg * math.log(p_neg, 2))
+  print "entropy: %f " % ent
+  return ent
 
 
-def info_gain(feature):
+def info_gain(f):
   """ Calculates the information gain for a node
-  feature is each value v of all possible values of attribte a
-  f_v subset of feature for which attribute a has value v
+  feature_vec is each value v of all possible values of attribte a
+  f_v subset of feature_vec for which attribute a has value v
   |f_v| notation for size of set
   """
-  print feature
-  # print feature[0].get('a')
-  a = feature[0].get('a') / feature[1].get('a')
-  c = feature[0].get('c') / feature[1].get('c')
-  g = feature[0].get('g') / feature[1].get('g')
-  t = feature[0].get('t') / feature[1].get('t')
+  info = float(0)
+  for base in f.bases:
+    print 'for loop in info gain: base = %s ' 
+    print base
+    info += base[2]/f.n * entropy(base, f.n)
 
+  print info
 
 
   
@@ -144,6 +150,7 @@ if __name__ == "__main__":
 
   data = []
   data_dict = dict()
+  # read the file 
   with open(args.filename, 'rb') as f:
     reader = csv.reader(f, delimiter=',')
     for line in f:
@@ -167,15 +174,17 @@ if __name__ == "__main__":
 
   # caculate the total pos/neg occurances for each feature in the set
   total_counts = {}
+  feature_list = []
   for i in range(0, seq_length):
-    total_counts[i] = count_occurances(data, i)
+    total_counts[i] = count_occurances(data, i, feature_list)
 
-  from pprint import pprint
-  print "Total initial counts for occurances"
-  pprint (total_counts)
+  # from pprint import pprint
+  # print "Total initial counts for occurances"
+  # pprint (total_counts)
 
   print "doing info gain for a feature"
-  info_gain(total_counts[1])
+  Info_D = info_gain(feature_list[0])
+  # print "Information gain for all attributes: %f" % Info_D
 
   
 
