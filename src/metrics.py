@@ -99,6 +99,10 @@ def chi_squared(f):
   # sum  (promoters_ichild - expected_promoters_ichild)^2  + (non-p_i - # exp_non_pi)^2
   #   -----------------------------------------------------  -------------------------
   #       exp_promoters_ichild                                      exp_non_pi
+  if f.info_gain >= 0.1:
+    return 10
+  else:
+    return 1
     
 
 

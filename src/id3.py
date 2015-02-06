@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """ 
-It is a part of the CS529 Machine Learning project
+id3.py is a part of the CS529 Machine Learning project
 1 submission for Aaron Gonzales.
 """
 
@@ -23,10 +23,10 @@ __date__ = "2015-01-20"
 
 def build_tree(parent_data, rootnode_id):
   """
-    class here for the DNA object
-    that should include the classification (promoter / not), 
-    instance name, and sequence as fields in the object
-    main will create objects when ran
+    Main function for building the tree. Recursively builds going top down
+    Args:
+      parent_data (list): DNA data, name, sequence, class label
+      rootnode_id: id for , may not need this
   """
   DEBUG = True
   print '------starting build_tree '
@@ -40,6 +40,11 @@ def build_tree(parent_data, rootnode_id):
   # if chi_sq <= 10:
   #   print 'chi_sq is too low'
   #   return None
+
+  ##### this needs to change to just fill in a tree dynamically ####
+  #### maybe add root note here
+  #### and a while true, if this, break
+  #### check that fills in nodes in the tree?
 
   # remember, this gives back a dict
   sub_data = make_subclass_vec(parent_data, rootnode_id)
