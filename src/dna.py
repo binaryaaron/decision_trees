@@ -10,13 +10,14 @@ class DNA(object):
   Holds relevent information about the dna, including promoter type, name, and
   sequence. convenience methods for getting information and sorting?
 
-  Attributes:
-    promoter: One of {+/-}, indicating the class ("+" = promoter).
-    name:   The instance name (non-promoters named by position in the 1500-long
+  Args:
+    promoter (Boolean): One of {+/-}, indicating the class ("+" = promoter).
+    name (str):   The instance name (non-promoters named by position in the 1500-long
             nucleotide sequence provided by T. Record).  
-    sequence: The remaining 57 fields are the sequence, starting at 
+    sequence (list): The remaining 57 fields are the sequence, starting at 
          position -50 (p-50) and ending at position +7 (p7). Each of
          these fields is filled by one of {a, g, t, c}.
+  Attributes:
     features: Dictionary of the above sequence.
     """
   def __init__(self, promoter, name, sequence):
@@ -33,7 +34,7 @@ class DNA(object):
     for index, feature in zip(index, sequence):
       self.features[index] = feature
 
-
+  
   def get_info(self):
     print " -- Debug: DNA object name class: %s " % self.name
     print " -- Debug: DNA object promoter class: %s " % self.promoter

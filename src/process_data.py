@@ -27,29 +27,42 @@ __maintainer__ = "Aaron Gonzales"
 __email__ = "agonzales@cs.unm.edu"
 
 
-def make_feature_vec(data, feaure_index):
+def make_subclass_vec(data, feature_index):
   """
   Will make a subclass of features for splitting the data.
   Args:
     data (list): dna objects with feature and labels on them
+    feature_index (int): index of the feature we want to split on
+  Return:
+    sub_data (tuple): tuple of split objects, one for each base 
   """
-  # take items in subclasses of graph's root
-  pos = [pro.features[feature_index] for pro in data if pro.promoter == True]
-  neg = [ pro.features[feature_index] for pro in data if pro.promoter == False]
-  print "Pos: %d; Neg: %d" % len(pos), len(neg)
+  # take items in base subclasses of graph's root
+  # need to partition data based on a,c,t,g so, get unique instances
 
+  # dna object where feature at feature index is an 'a'
+  a_sub = [ pro for pro in data if pro.features[feature_index] is 'a' ]
+  c_sub = [ pro for pro in data if pro.features[feature_index] is 'c' ]
+  g_sub = [ pro for pro in data if pro.features[feature_index] is 'g' ]
+  t_sub = [ pro for pro in data if pro.features[feature_index] is 't' ]
+  sub_data = [ a_sub, c_sub, g_sub, t_sub ]
+  print "Made four subclass datasets; here they are"
+  f_subvec = []
+  
+  for item in sub_data:
+    print len(item)
+
+  return sub_data
+  
 
 def count_occurances(data, feature_index, feature_vec):
   """ 
     Main method to count the instances of occurance at each feature. 
     Builds a feature object.
     data
-   
     Args:
       data (list): list of bases (column vector)
       feature_index: annoying index for getting the right vector
       feature_vec: list that holds all feature objects
-
     Returns:
       none
   """
@@ -113,9 +126,8 @@ def entropy(base, n):
 
 def info_gain(f):
   """ Calculates the information gain for a node
-  feature_vec is each value v of all possible values of attribte a
-  f_v subset of feature_vec for which attribute a has value v
-  |f_v| notation for size of set
+  Args:
+  f (tuple): 3-tuple with pos_occurances, neg_occurances, and total_occurances
   """
   DEBUG = False
   # need to calc info gain for the full feature
@@ -142,14 +154,40 @@ def chi_squared(p, n, counts, prob, pcount):
   """
     
 
-def build_tree():
+def build_tree(parent_data, rootnode_id):
   """
     class here for the DNA object
     that should include the classification (promoter / not), 
     instance name, and sequence as fields in the object
     main will create objects when ran
   """
-  return None
+  if parent_data is None:
+    return None
+  if chi_sq <= 10:
+    print 'chi_sq is too low'
+    return None
+
+  # remember, this gives back a list, [ a, c, g, t ]
+  sub_data = make_subclass_vec(parent_data, rootnode_id)
+  seq_length = len(sub_data[0].features)
+  print seq_length
+
+  # list of each feature object, with a column vector of chars
+  subfeature_list = []
+  for i in range(0, seq_length):
+    count_occurances(parent_data, i, feature_list)
+
+  for f in subfeature_list:
+    info_gain(f)
+
+  tmp = [f.info_gain for f in feature_list]
+  print max(tmp), min(tmp)
+
+  # make a dict with each feature's ID
+  feature_dict = dict(zip(range(0,seq_length), feature_list))
+
+  # gets the index of the item with largest info gain
+  rootnode_id = max(feature_dict.iterkeys(), key=lambda k: feature_dict[k].info_gain)
 
 
 
@@ -193,8 +231,8 @@ if __name__ == "__main__":
   feature_dict = dict(zip(range(0,seq_length), feature_list))
 
   # gets the index of the item with largest info gain
-
   rootnode_id = max(feature_dict.iterkeys(), key=lambda k: feature_dict[k].info_gain)
+  print "Highest information gain found was %f at feature id: %d" % (feature_dict[rootnode_id].info_gain, rootnode_id)
   id3_tree = nx.Graph()
   id3_tree.add_node(rootnode_id, feature=feature_dict[rootnode_id]) 
   print id3_tree.nodes()
@@ -202,6 +240,9 @@ if __name__ == "__main__":
   id3_tree.add_edge(rootnode_id, 3)
   print id3_tree.nodes()
   print id3_tree.edges()
+
+  subclass_data = make_subclass_vec(data, rootnode_id)
+
   
 
   # i need a way to get dna and feature index pos
