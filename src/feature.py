@@ -39,6 +39,9 @@ class feature(object):
     self.info_gain = float(-10)
     self.index = index
 
+  def __str__(self):
+    return "<Feature Obj: \n n ='" + str(self.n) + "'\n bases: '" + str(self.bases) + "' \n info_gain: '"  + str(self.info_gain )
+
   def print_me(self):
     print " -- Debug: feature object bases = " 
     print self.bases

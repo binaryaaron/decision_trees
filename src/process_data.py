@@ -17,6 +17,7 @@ from dna import DNA
 import os
 from pylab import *
 from collections import Counter
+from pprint import pprint
 # graph tool
 import networkx as nx
 
@@ -34,22 +35,26 @@ def make_subclass_vec(data, feature_index):
     data (list): dna objects with feature and labels on them
     feature_index (int): index of the feature we want to split on
   Return:
-    sub_data (tuple): tuple of split objects, one for each base 
+    sub_data (dict): dict of lists, one for each base 
   """
   # take items in base subclasses of graph's root
   # need to partition data based on a,c,t,g so, get unique instances
 
   # dna object where feature at feature index is an 'a'
-  a_sub = [ pro for pro in data if pro.features[feature_index] is 'a' ]
-  c_sub = [ pro for pro in data if pro.features[feature_index] is 'c' ]
-  g_sub = [ pro for pro in data if pro.features[feature_index] is 'g' ]
-  t_sub = [ pro for pro in data if pro.features[feature_index] is 't' ]
-  sub_data = [ a_sub, c_sub, g_sub, t_sub ]
-  print "Made four subclass datasets; here they are"
+  sub_data = {
+    'a_sub' : [ pro for pro in data if pro.features[feature_index] is 'a' ],
+    'c_sub' : [ pro for pro in data if pro.features[feature_index] is 'c' ],
+    'g_sub' : [ pro for pro in data if pro.features[feature_index] is 'g' ],
+    't_sub' : [ pro for pro in data if pro.features[feature_index] is 't' ]
+  }
+  # sub_data = [ a_sub, c_sub, g_sub, t_sub ]
+  # print "Made four subclass datasets; here they are"
   f_subvec = []
   
-  for item in sub_data:
-    print len(item)
+  # print sub_data
+  # for val in sub_data.iteritems():
+    # print len(val[1])
+    # print val
 
   return sub_data
   
@@ -114,7 +119,7 @@ def entropy(base, n):
   if p_neg != 0:
     entneg = -1* (p_neg * math.log(p_neg, 2) )
   else:
-    entpos = 0
+    entneg = 0
   # print "ent pos: %f" % entneg
   # print "ent neg: %f" % entneg
   ent = entpos + entneg
@@ -127,9 +132,14 @@ def entropy(base, n):
 def info_gain(f):
   """ Calculates the information gain for a node
   Args:
-  f (tuple): 3-tuple with pos_occurances, neg_occurances, and total_occurances
+  f (Feature): a feature
   """
   DEBUG = False
+  # check for empty values
+  if 0 in [f.pos, f.n, f.neg]:
+    f.info_gain = 0
+    return
+
   # need to calc info gain for the full feature
   info_f = -(f.pos/f.n * math.log(f.pos/f.n, 2) ) - (f.neg/f.n * math.log(f.neg/f.n, 2))
   if DEBUG:
@@ -148,10 +158,18 @@ def info_gain(f):
   f.info_gain = info_gain
 
   
-def chi_squared(p, n, counts, prob, pcount):
+def chi_squared(f):
   """
   Performs the chi-squared test needed for testing effectiveness of a split.
   """
+  # simply, 
+  # sum (observed - expected)^2
+  #     ------------------------
+  #          expected
+
+  # sum  (promoters_ichild - expected_promoters_ichild)^2  + (non-p_i - # exp_non_pi)^2
+  #   -----------------------------------------------------  -------------------------
+  #       exp_promoters_ichild                                      exp_non_pi
     
 
 def build_tree(parent_data, rootnode_id):
@@ -161,34 +179,70 @@ def build_tree(parent_data, rootnode_id):
     instance name, and sequence as fields in the object
     main will create objects when ran
   """
+  DEBUG = True
+  print '------starting build_tree '
   if parent_data is None:
+    print '------data empty or null'
     return None
-  if chi_sq <= 10:
-    print 'chi_sq is too low'
-    return None
+  if len(parent_data) <= 1:
+    print 'data <= 1'
+    # make a leaf?
+    return
+  # if chi_sq <= 10:
+  #   print 'chi_sq is too low'
+  #   return None
 
-  # remember, this gives back a list, [ a, c, g, t ]
+  # remember, this gives back a dict
   sub_data = make_subclass_vec(parent_data, rootnode_id)
-  seq_length = len(sub_data[0].features)
-  print seq_length
+  pprint (sub_data)
+  info_vector = [rootnode_id] 
+  prev_feats = [rootnode_id]
+  feature_dict = {}
+  maxgain_id = None
 
+  # main loop
+  for dataset in sub_data.itervalues():
+    build_tree_helper(dataset, feature_dict, maxgain_id)
+                  
+  info_vector.append(maxgain_id)
+  print info_vector
+
+
+def build_tree_helper(dataset, feature_dict, maxgain_id):
+
+  print 'Attempting to reclassify %d values' % len(dataset)
+  if len(dataset) <= 1:
+    print "------passing"
+    pass
+
+  pprint (dataset)
   # list of each feature object, with a column vector of chars
   subfeature_list = []
-  for i in range(0, seq_length):
-    count_occurances(parent_data, i, feature_list)
 
+  # rebuilds the counts for each type of base
+  for i,item in enumerate(dataset[0].sequence):
+    count_occurances(dataset, i, subfeature_list)
+
+  # rebuilds subfeature info gain
   for f in subfeature_list:
     info_gain(f)
 
-  tmp = [f.info_gain for f in feature_list]
+  if len(dataset) <= 2:
+    for s in subfeature_list:
+      print str(s)
+  tmp = [f.info_gain for f in subfeature_list]
   print max(tmp), min(tmp)
 
   # make a dict with each feature's ID
-  feature_dict = dict(zip(range(0,seq_length), feature_list))
+  feature_dict = dict(zip(range(0,57), subfeature_list))
+  # pprint (feature_dict)
 
-  # gets the index of the item with largest info gain
-  rootnode_id = max(feature_dict.iterkeys(), key=lambda k: feature_dict[k].info_gain)
+  # gets the index of the item with largest info gain;may need checking on prev
+  # values
+  maxgain_id =  max(feature_dict.iterkeys(), key=lambda k: feature_dict[k].info_gain) 
 
+  # recurse
+  build_tree(dataset, maxgain_id)
 
 
 if __name__ == "__main__":
@@ -241,7 +295,7 @@ if __name__ == "__main__":
   print id3_tree.nodes()
   print id3_tree.edges()
 
-  subclass_data = make_subclass_vec(data, rootnode_id)
+  build_tree(data, rootnode_id)
 
   
 
