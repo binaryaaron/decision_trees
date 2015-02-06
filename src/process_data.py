@@ -52,7 +52,8 @@ def count_occurances(data, feature_index, feature_vec):
   base_g = (pos.count('g'), neg.count('g'), pos.count('g') + neg.count('g')  )
   base_t = (pos.count('t'), neg.count('t'), pos.count('t') + neg.count('t')  )
 
-  f =  feature(len(pos) + len(neg), base_a, base_c, base_g, base_t)
+  f =  feature(len(pos) + len(neg), base_a, base_c, base_g, base_t, len(pos),
+               len(neg))
   feature_vec.append(f)
   # f.get_info()
   # return (pos_totals, neg_totals)
@@ -72,23 +73,30 @@ def entropy(base, n):
   """
   # convenience
 
-  # base case
-  if base[2] <= 1:
+  # base case, need to chekc this
+  # if base[2] <=1  or base[0]  <=1 or base[1]  <= 1:
+  if base[2] <=1: 
     return 0
 
   p_pos = base[0]/base[2]
   p_neg = base[1]/base[2]
   # print math.log(p, 2)
-  print "p pos: %f" % p_pos
-  print "p neg: %f" % p_neg
-  entpos = -1* (p_pos * math.log(p_pos, 2) )
-  entneg = -1* (p_neg * math.log(p_neg, 2) )
-  print "ent pos: %f" % entneg
-  print "ent neg: %f" % entneg
+  # print "p pos: %f" % p_pos
+  # print "p neg: %f" % p_neg
+  if p_pos != 0:
+    entpos = -1* (p_pos * math.log(p_pos, 2) )
+  else:
+    entpos = 0
+  if p_neg != 0:
+    entneg = -1* (p_neg * math.log(p_neg, 2) )
+  else:
+    entpos = 0
+  # print "ent pos: %f" % entneg
+  # print "ent neg: %f" % entneg
   ent = entpos + entneg
 
   # ent = (p_pos * math.log(p_pos, 2) ) - (p_neg * math.log(p_neg, 2))
-  print "entropy: %f " % ent
+  # print "entropy: %f " % ent
   return ent
 
 
@@ -98,13 +106,23 @@ def info_gain(f):
   f_v subset of feature_vec for which attribute a has value v
   |f_v| notation for size of set
   """
+  # need to calc info gain for the full feature
+  info_f = -(f.pos/f.n * math.log(f.pos/f.n, 2) ) - (f.neg/f.n * math.log(f.neg/f.n, 2))
+  print "The set's  information is: %f" % info_f
+
   info = float(0)
+  info_sum = float(0)
   for base in f.bases:
     print 'for loop in info gain: base = %s ' 
-    print base
-    info += base[2]/f.n * entropy(base, f.n)
+    print base, info
+    info = base[2]/f.n * entropy(base, f.n)
+    info_sum += info
+    print 'for loop in info gain: done'
+    print base, info, info_sum
 
-  print info
+  info_gain = info_f - info_sum
+  f.info_gain = info_gain
+
 
 
   
@@ -184,6 +202,9 @@ if __name__ == "__main__":
 
   print "doing info gain for a feature"
   Info_D = info_gain(feature_list[0])
+  for f in feature_list:
+    info_gain(f)
+
   # print "Information gain for all attributes: %f" % Info_D
 
   

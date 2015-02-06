@@ -19,7 +19,7 @@ class feature(object):
     bases - tuple of the bases a,c,g,t
     info - information for this feature
   """
-  def __init__(self, n,a,c,g,t):
+  def __init__(self, n,a,c,g,t, pos, neg):
     # total size of feature
     self.n = n
     # tuples for each base
@@ -28,7 +28,10 @@ class feature(object):
     self.g = g
     self.t = t
     self.bases = (a,c,t,g)
+    self.pos = pos
+    self.neg = neg
     self.info = float(-10)
+    self.info_gain = float(-10)
 
 
   def get_info(self):
