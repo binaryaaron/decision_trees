@@ -27,6 +27,17 @@ __maintainer__ = "Aaron Gonzales"
 __email__ = "agonzales@cs.unm.edu"
 
 
+def make_feature_vec(data, feaure_index):
+  """
+  Will make a subclass of features for splitting the data.
+  Args:
+    data (list): dna objects with feature and labels on them
+  """
+  # take items in subclasses of graph's root
+  pos = [pro.features[feature_index] for pro in data if pro.promoter == True]
+  neg = [ pro.features[feature_index] for pro in data if pro.promoter == False]
+  print "Pos: %d; Neg: %d" % len(pos), len(neg)
+
 
 def count_occurances(data, feature_index, feature_vec):
   """ 
@@ -53,7 +64,7 @@ def count_occurances(data, feature_index, feature_vec):
   base_t = (pos.count('t'), neg.count('t'), pos.count('t') + neg.count('t')  )
 
   f =  feature(len(pos) + len(neg), base_a, base_c, base_g, base_t, len(pos),
-               len(neg))
+               len(neg), feature_index)
   feature_vec.append(f)
   # f.get_info()
   # return (pos_totals, neg_totals)
@@ -106,24 +117,23 @@ def info_gain(f):
   f_v subset of feature_vec for which attribute a has value v
   |f_v| notation for size of set
   """
+  DEBUG = False
   # need to calc info gain for the full feature
   info_f = -(f.pos/f.n * math.log(f.pos/f.n, 2) ) - (f.neg/f.n * math.log(f.neg/f.n, 2))
-  print "The set's  information is: %f" % info_f
+  if DEBUG:
+    print "The set's  information is: %f" % info_f
 
   info = float(0)
   info_sum = float(0)
   for base in f.bases:
-    print 'for loop in info gain: base = %s ' 
-    print base, info
     info = base[2]/f.n * entropy(base, f.n)
     info_sum += info
-    print 'for loop in info gain: done'
-    print base, info, info_sum
+    if DEBUG: 
+      print 'for loop in info gain: done'
+      print base, info, info_sum
 
   info_gain = info_f - info_sum
   f.info_gain = info_gain
-
-
 
   
 def chi_squared(p, n, counts, prob, pcount):
@@ -139,36 +149,20 @@ def build_tree():
     instance name, and sequence as fields in the object
     main will create objects when ran
   """
-  #From data mining book
-#    create a node N ;
-#    if tuples in D are all of the same class, C:
-#      return N as a leaf node labeled with the class C;
-#    if attribute list is empty then
-#        return N as a leaf node labeled with the majority class in D; # majority voting
-#    apply Attribute selection method(D, attribute list) to find the "best" splitting criterion;
-#    label node N with splitting criterion;
-#    if splitting attribute is discrete-valued and multiway splits allowed then # not restricted to binary trees
-#      attribute list = attribute list - splitting attribute; # remove splitting attribute
-#    for each outcome j of splitting criterion:
-#      # partition the tuples and grow subtrees for each partition
-#      let D j be the set of data tuples in D satisfying outcome j; # a partition
-#        if D j is empty: 
-#          attach a leaf labeled with the majority class in D to node N ;
-#        else attach the node returned by Generate decision tree(D j , attribute list) to node N ;
-#    endfor
-#    return N 
   return None
 
 
+
 if __name__ == "__main__":
+  # gotta parse those args
   parser = argparse.ArgumentParser(description = "DNA Promoter ID3 classifer")
   parser.add_argument("filename", 
       help = 'the DNA promoter data file')
   args = parser.parse_args()
 
   data = []
-  data_dict = dict()
   # read the file 
+  # TODO need to modify this to fit the new data  file from LEARN not UCI
   with open(args.filename, 'rb') as f:
     reader = csv.reader(f, delimiter=',')
     for line in f:
@@ -178,32 +172,43 @@ if __name__ == "__main__":
       dna = DNA(gene[0],gene[1],gene[2])
       # slow way of growing a list but it works for this purpose
       data.append(dna)
-      data_dict[dna.name] = (dna.promoter, dna.features)
 
+  print "Size of the read data: %d" % len(data)
 
-  print "Size of test: %d" % len(data)
-  print "Size of testdict: %d" % len(data_dict)
-
-  # count = count_occurances(data, 1)
-  # print "Count: pos: %s; neg: %s " % count
-
-  # convenience 
+  # convenience for length of a feature
   seq_length = len(data[0].features)
 
-  # caculate the total pos/neg occurances for each feature in the set
-  total_counts = {}
+  # list of each feature object, with a column vector of chars
   feature_list = []
   for i in range(0, seq_length):
-    total_counts[i] = count_occurances(data, i, feature_list)
+    count_occurances(data, i, feature_list)
 
-  # from pprint import pprint
-  # print "Total initial counts for occurances"
-  # pprint (total_counts)
-
-  print "doing info gain for a feature"
-  Info_D = info_gain(feature_list[0])
   for f in feature_list:
     info_gain(f)
+
+  # tmp = [f.info_gain for f in feature_list]
+  # print max(tmp), min(tmp)
+
+  # make a dict with each feature's ID
+  feature_dict = dict(zip(range(0,seq_length), feature_list))
+
+  # gets the index of the item with largest info gain
+
+  rootnode_id = max(feature_dict.iterkeys(), key=lambda k: feature_dict[k].info_gain)
+  id3_tree = nx.Graph()
+  id3_tree.add_node(rootnode_id, feature=feature_dict[rootnode_id]) 
+  print id3_tree.nodes()
+  id3_tree.add_node(3, feature=feature_dict[3])
+  id3_tree.add_edge(rootnode_id, 3)
+  print id3_tree.nodes()
+  print id3_tree.edges()
+  
+
+  # i need a way to get dna and feature index pos
+
+
+
+
 
   # print "Information gain for all attributes: %f" % Info_D
 

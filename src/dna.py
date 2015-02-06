@@ -1,11 +1,9 @@
-
 __author__ = "Aaron Gonzales"
 __copyright__ = "GPL"
 __license__ = "GPL"
 __maintainer__ = "Aaron Gonzales"
 __email__ = "agonzales@cs.unm.edu"
 __status__ = "Development"
-
 
 class DNA(object):
   """ Main class for DNA objects.
