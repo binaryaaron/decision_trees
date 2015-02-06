@@ -14,6 +14,7 @@ import process_data
 import math
 from feature import feature
 from dna import DNA
+from id3 import *
 import os
 from pylab import *
 from collections import Counter
