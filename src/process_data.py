@@ -82,24 +82,9 @@ def count_occurances(data, feature_index, feature_vec):
   f =  feature(len(pos) + len(neg), base_a, base_c, base_g, base_t, len(pos),
                len(neg), feature_index)
   feature_vec.append(f)
-  # f.get_info()
-  # return (pos_totals, neg_totals)
 
 
-
-
-
-
-##### Do the thing ######
-if __name__ == "__main__":
-  # gotta parse those args
-  parser = argparse.ArgumentParser(description = "DNA Promoter ID3 classifer")
-  parser.add_argument("filename", 
-      help = 'the DNA promoter data file')
-  args = parser.parse_args()
-
-  data = []
-  # read the file 
+def read_file(data_list, args):
   # TODO need to modify this to fit the new data  file from LEARN not UCI
   with open(args.filename, 'rb') as f:
     reader = csv.reader(f, delimiter=',')
@@ -109,49 +94,19 @@ if __name__ == "__main__":
       gene = [field.strip() for field in line.split(',')]
       dna = DNA(gene[0],gene[1],gene[2])
       # slow way of growing a list but it works for this purpose
-      data.append(dna)
+      data_list.append(dna)
 
+
+### This is for testing only; run main.py###
+if __name__ == "__main__":
+  # gotta parse those args
+  parser = argparse.ArgumentParser(description = "DNA Promoter Decision Tree maker thingy")
+  parser.add_argument("filename", 
+      help = 'the DNA promoter data file')
+  args = parser.parse_args()
+
+  data = []
+  # read the file 
+  read_file(data, args)
   print "Size of the read data: %d" % len(data)
-
   build_tree(data)
-  # convenience for length of a feature
-
-  # list of each feature object, with a column vector of chars
-  # feature_list = []
-  # for i in range(0, seq_length):
-    # count_occurances(data, i, feature_list)
-
-  # for f in feature_list:
-    # info_gain(f)
-
-  # tmp = [f.info_gain for f in feature_list]
-  # print max(tmp), min(tmp)
-
-  # make a dict with each feature's ID
-  # feature_dict = dict(zip(range(0,seq_length), feature_list))
-
-  # gets the index of the item with largest info gain
-  # rootnode_id = max(feature_dict.iterkeys(), key=lambda k: feature_dict[k].info_gain)
-  # print "Highest information gain found was %f at feature id: %d" % (feature_dict[rootnode_id].info_gain, rootnode_id)
-  # id3_tree = nx.Graph()
-  # id3_tree.add_node(rootnode_id, feature=feature_dict[rootnode_id]) 
-  # print id3_tree.nodes()
-  # id3_tree.add_node(3, feature=feature_dict[3])
-  # id3_tree.add_edge(rootnode_id, 3)
-  # print id3_tree.nodes()
-  # print id3_tree.edges()
-
-  # build_tree(data, rootnode_id)
-
-  
-
-  # i need a way to get dna and feature index pos
-
-
-
-
-
-  # print "Information gain for all attributes: %f" % Info_D
-
-  
-
