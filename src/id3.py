@@ -91,7 +91,7 @@ def build_tree(dna_data):
         # stop and make me a leaf, skip to next
         print "data too small to split; making leaf"
         id3_tree.add_node('leaf' + split[0])
-        id3_tree.add_edge(parent_f.index, 'leaf' + split[0]) 
+        id3_tree.add_edge(parent_f.index, 'leaf' + split[0], base=split[0]) 
         continue
 
       # pass just the list of dna and index of split
@@ -103,7 +103,7 @@ def build_tree(dna_data):
         continue
       else:
         id3_tree.add_node(child_f.index, data=child_f) # don't forget split tuple
-        id3_tree.add_edge(parent_f.index, child_f.index)
+        id3_tree.add_edge(parent_f.index, child_f.index, base=split[0])
     #update the parent_f for next layer
     if child_f is not None:
       parent_f = child_f
@@ -112,10 +112,6 @@ def build_tree(dna_data):
       break
     i += 1
 
-  print (id3_tree.adjacency_list())
-  print id3_tree.nodes()
-  print nx.info(id3_tree)
-  print nx.adjacency_matrix(id3_tree)
   return id3_tree
 
 
@@ -177,10 +173,10 @@ def make_subclass_vec(f):
   data = f.data
   feature_index = f.index
   sub_data = {
-    'a_sub' : [ pro for pro in data if pro.features[feature_index] is 'a' ],
-    'c_sub' : [ pro for pro in data if pro.features[feature_index] is 'c' ],
-    'g_sub' : [ pro for pro in data if pro.features[feature_index] is 'g' ],
-    't_sub' : [ pro for pro in data if pro.features[feature_index] is 't' ]
+    'a' : [ pro for pro in data if pro.features[feature_index] is 'a' ],
+    'c' : [ pro for pro in data if pro.features[feature_index] is 'c' ],
+    'g' : [ pro for pro in data if pro.features[feature_index] is 'g' ],
+    't' : [ pro for pro in data if pro.features[feature_index] is 't' ]
   }
   # sub_data = [ a_sub, c_sub, g_sub, t_sub ]
   # print "Made four subclass datasets; here they are"
