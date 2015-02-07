@@ -75,8 +75,8 @@ def build_tree(dna_data):
       if len(split[1]) < 2:
         # stop and make me a leaf, skip to next
         print "data too small to split; making leaf"
-        id3_tree.add_node('+/-')
-        id3_tree.add_edge(parent_index, '+/-')
+        id3_tree.add_node('leaf' + split[0])
+        id3_tree.add_edge(parent_index, 'leaf' + split[0]) 
         continue
 
       # pass just the list of dna and index of split
@@ -139,7 +139,7 @@ def build_node(dataset, f_split):
   max_f = subfeature_list[maxgain_id]
 
   # evaluate the node's info gain
-  if gain_list[maxgain_id] <= 0.1:
+  if gain_list[maxgain_id] <= 0.01:
     print "Node is not good enough to add"
     return None
 
