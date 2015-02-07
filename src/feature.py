@@ -18,11 +18,13 @@ class feature(object):
     pos : number of positive features
     neg : number of negative features
     index : this feature's place
-
   Attributes:
     bases : tuple of the bases a,c,g,t
     info : information for this feature
     info_gain : information gained by splitting on this feature
+    data (list): the data that will be present for a if we split upon it. 
+                e.g., if we split on feature f, f.data = subset of data indexed
+                by that feature.
   """
   def __init__(self, n,a,c,g,t, pos, neg, index):
     # total size of feature
@@ -38,6 +40,7 @@ class feature(object):
     self.info = float(-10)
     self.info_gain = float(-10)
     self.index = index
+    self.data = None
 
   def __str__(self):
     return "<Feature Obj: \n n ='" + str(self.n) + "'\n bases: '" + str(self.bases) + "' \n info_gain: '"  + str(self.info_gain )
