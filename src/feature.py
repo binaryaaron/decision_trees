@@ -7,7 +7,7 @@ __status__ = "Development"
 
 
 class feature(object):
-  """ 
+  """
   Holds state information about a feature.
   Args:
     n : size of the feature

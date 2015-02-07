@@ -34,7 +34,6 @@ class DNA(object):
     for index, feature in zip(index, sequence):
       self.features[index] = feature
 
-  
   def get_info(self):
     print " -- Debug: DNA object name class: %s " % self.name
     print " -- Debug: DNA object promoter class: %s " % self.promoter

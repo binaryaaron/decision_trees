@@ -6,16 +6,8 @@ and create objects from that. It is a part of the CS529 Machine Learning project
 1 submission for Aaron Gonzales.
 """
 
-from process_data import *
 import math
-from feature import feature
-from dna import DNA
-from id3 import *
-import os
-from pylab import *
 from pprint import pprint
-# graph tool
-import networkx as nx
 
 __author__ = "Aaron Gonzales"
 __copyright__ = "GPL"
@@ -103,6 +95,3 @@ def chi_squared(f):
     return 10
   else:
     return 1
-    
-
-

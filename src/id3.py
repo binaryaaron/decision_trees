@@ -4,14 +4,12 @@ id3.py is a part of the CS529 Machine Learning project
 1 submission for Aaron Gonzales.
 It provides functionality for building the actual decision tree
 """
-
-import sys
-import argparse
-import csv 
-import id3
-import process_data
+import math
+from feature import feature
+from dna import DNA
+from pprint import pprint
+# graph tool
 import networkx as nx
-from process_data import *
 from metrics import *
 
 __author__ = "Aaron Gonzales"
@@ -144,4 +142,60 @@ def build_node(dataset, f_split):
 def print_node(g, node_index):
   print 'size of node: '
   #print len(g.node[node_index]['data'])
+
+def make_subclass_vec(data, feature_index):
+  """
+  Will make a subclass of features for splitting the data.
+  Args:
+    data (list): dna objects with feature and labels on them
+    feature_index (int): index of the feature we want to split on
+  Return:
+    sub_data (dict): dict of lists, one for each base 
+  """
+  # take items in base subclasses of graph's root
+  # need to partition data based on a,c,t,g so, get unique instances
+
+  # dna object where feature at feature index is an 'a'
+  sub_data = {
+    'a_sub' : [ pro for pro in data if pro.features[feature_index] is 'a' ],
+    'c_sub' : [ pro for pro in data if pro.features[feature_index] is 'c' ],
+    'g_sub' : [ pro for pro in data if pro.features[feature_index] is 'g' ],
+    't_sub' : [ pro for pro in data if pro.features[feature_index] is 't' ]
+  }
+  # sub_data = [ a_sub, c_sub, g_sub, t_sub ]
+  # print "Made four subclass datasets; here they are"
+  f_subvec = []
+
+  # print sub_data
+  # for val in sub_data.iteritems():
+    # print len(val[1])
+    # print val
+  return sub_data
+
+def count_occurances(data, feature_index, feature_vec):
+  """ 
+    Main method to count the instances of occurance at each feature. 
+    Builds a feature object.
+    data
+    Args:
+      data (list): list of bases (column vector)
+      feature_index: annoying index for getting the right vector
+      feature_vec: list that holds all feature objects
+    Returns:
+      none
+  """
+  # build pos and neg lists with just the individual base 
+  pos = [pro.features[feature_index] for pro in data if pro.promoter is True]
+  neg = [ pro.features[feature_index] for pro in data if pro.promoter is False]
+
+  # get base type totals and make a feature object
+  base_a = (pos.count('a'), neg.count('a'), pos.count('a') + neg.count('a')  )
+  base_c = (pos.count('c'), neg.count('c'), pos.count('c') + neg.count('c')  )
+  base_g = (pos.count('g'), neg.count('g'), pos.count('g') + neg.count('g')  )
+  base_t = (pos.count('t'), neg.count('t'), pos.count('t') + neg.count('t')  )
+
+  f =  feature(len(pos) + len(neg), base_a, base_c, base_g, base_t, len(pos),
+               len(neg), feature_index)
+  feature_vec.append(f)
+
 

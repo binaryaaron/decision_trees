@@ -3,22 +3,21 @@
 main.py is the primary file that runs the decsion tree parser
 
 """
+import id3
+from feature import feature
+from dna import DNA
 
 import sys
 import argparse
-import id3
-import process_data
-import math
-from feature import feature
-from dna import DNA
-from id3 import *
 import os
+import csv
 from pprint import pprint
+
+# graph tool
 import networkx as nx
-from metrics import *
-import process_data
 import matplotlib as plt
 import pygraphviz as pgv
+
 __author__ = "Aaron Gonzales"
 __copyright__ = "GPL"
 __license__ = "GPL"
@@ -26,6 +25,17 @@ __maintainer__ = "Aaron Gonzales"
 __email__ = "agonzales@cs.unm.edu"
 
 
+def read_file(data_list, args):
+  # TODO need to modify this to fit the new data  file from LEARN not UCI
+  with open(args.filename, 'rb') as f:
+    reader = csv.reader(f, delimiter=',')
+    for line in f:
+      # strips all whitespace within fields, including tabs and newlines without seperators 
+      # as the file is full of weird extra spaces and such
+      gene = [field.strip() for field in line.split(',')]
+      dna = DNA(gene[0],gene[1],gene[2])
+      # slow way of growing a list but it works for this purpose
+      data_list.append(dna)
 
 if __name__ == "__main__":
   # gotta parse those args
@@ -42,7 +52,7 @@ if __name__ == "__main__":
 
   print "Size of the read data: %d" % len(data)
 
-  tree = build_tree(data)
+  tree = id3.build_tree(data)
   graph = nx.to_agraph(tree)
   print graph
   graph.layout()
@@ -54,9 +64,7 @@ if __name__ == "__main__":
   except ImportError:
     raise ImportError("This example needs Graphviz and either PyGraphviz or Pydot")
 
-  pos=nx.graphviz_layout(tree,prog='twopi',args='')
-  nx.draw(graph,pos,node_size=20,alpha=0.5,node_color="blue", with_labels=False)
-  plt.axis('equal')
+  nx.draw(tree, with_labels=False)
   plt.savefig('circular_tree.png')
   plt.show()
 
