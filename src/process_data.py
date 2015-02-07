@@ -16,11 +16,10 @@ from feature import feature
 from dna import DNA
 from id3 import *
 import os
-from pylab import *
-from collections import Counter
 from pprint import pprint
 # graph tool
 import networkx as nx
+from metrics import *
 
 __author__ = "Aaron Gonzales"
 __copyright__ = "GPL"
@@ -51,14 +50,12 @@ def make_subclass_vec(data, feature_index):
   # sub_data = [ a_sub, c_sub, g_sub, t_sub ]
   # print "Made four subclass datasets; here they are"
   f_subvec = []
-  
+
   # print sub_data
   # for val in sub_data.iteritems():
     # print len(val[1])
     # print val
-
   return sub_data
-  
 
 def count_occurances(data, feature_index, feature_vec):
   """ 
@@ -116,35 +113,35 @@ if __name__ == "__main__":
 
   print "Size of the read data: %d" % len(data)
 
+  build_tree(data)
   # convenience for length of a feature
-  seq_length = len(data[0].features)
 
   # list of each feature object, with a column vector of chars
-  feature_list = []
-  for i in range(0, seq_length):
-    count_occurances(data, i, feature_list)
+  # feature_list = []
+  # for i in range(0, seq_length):
+    # count_occurances(data, i, feature_list)
 
-  for f in feature_list:
-    info_gain(f)
+  # for f in feature_list:
+    # info_gain(f)
 
   # tmp = [f.info_gain for f in feature_list]
   # print max(tmp), min(tmp)
 
   # make a dict with each feature's ID
-  feature_dict = dict(zip(range(0,seq_length), feature_list))
+  # feature_dict = dict(zip(range(0,seq_length), feature_list))
 
   # gets the index of the item with largest info gain
-  rootnode_id = max(feature_dict.iterkeys(), key=lambda k: feature_dict[k].info_gain)
-  print "Highest information gain found was %f at feature id: %d" % (feature_dict[rootnode_id].info_gain, rootnode_id)
-  id3_tree = nx.Graph()
-  id3_tree.add_node(rootnode_id, feature=feature_dict[rootnode_id]) 
-  print id3_tree.nodes()
-  id3_tree.add_node(3, feature=feature_dict[3])
-  id3_tree.add_edge(rootnode_id, 3)
-  print id3_tree.nodes()
-  print id3_tree.edges()
+  # rootnode_id = max(feature_dict.iterkeys(), key=lambda k: feature_dict[k].info_gain)
+  # print "Highest information gain found was %f at feature id: %d" % (feature_dict[rootnode_id].info_gain, rootnode_id)
+  # id3_tree = nx.Graph()
+  # id3_tree.add_node(rootnode_id, feature=feature_dict[rootnode_id]) 
+  # print id3_tree.nodes()
+  # id3_tree.add_node(3, feature=feature_dict[3])
+  # id3_tree.add_edge(rootnode_id, 3)
+  # print id3_tree.nodes()
+  # print id3_tree.edges()
 
-  build_tree(data, rootnode_id)
+  # build_tree(data, rootnode_id)
 
   
 
