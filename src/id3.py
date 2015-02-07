@@ -33,7 +33,7 @@ def build_tree(dna_data):
   """
   DEBUG = True
   # empty graph object
-  id3_tree = nx.Graph()
+  id3_tree = nx.DiGraph()
 
   build = True
   ref_data = dna_data
@@ -54,6 +54,7 @@ def build_tree(dna_data):
   # e.g. first node, first list, first key
 
   i = 0
+  # continue building when misclassj
   while i < 4:
     print "Build_Tree: parent_index is %d " % parent_index
     print_node(id3_tree, parent_index)
@@ -76,7 +77,7 @@ def build_tree(dna_data):
         print "data too small to split; making leaf"
         id3_tree.add_node('+/-')
         id3_tree.add_edge(parent_index, '+/-')
-        break
+        continue
 
       # pass just the list of dna and index of split
       child = build_node(split[1], parent_index)
@@ -84,11 +85,16 @@ def build_tree(dna_data):
         print 'node failed to be built'
         id3_tree.add_node('+/-', data=['leaf'])
         id3_tree.add_edge(parent_index, '+/-')
-        pass
+        continue
       else:
-        id3_tree.add_node(child.index, data=split[1]) # don't forget slit tuple
+        id3_tree.add_node(child.index, data=split[1]) # don't forget split tuple
         id3_tree.add_edge(parent_index, child.index)
-        parent_index = child.index
+    #update the parent_index for next layer
+    if child is not None:
+      parent_index = child.index
+    else:
+      # get out of loop, all leaves
+      break
     i += 1
 
   print (id3_tree.adjacency_list())
