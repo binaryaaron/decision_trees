@@ -53,12 +53,12 @@ if __name__ == "__main__":
   print "Size of the read data: %d" % len(data)
 
   tree = id3.build_tree(data)
-  print (tree.adjacency_list())
-  print tree.nodes()
+  # print (tree.adjacency_list())
+  # print tree.nodes()
   # print nx.info(tree)
   # print nx.adjacency_matrix(tree)
   graph = nx.to_agraph(tree)
-  print graph
+  # print graph
   graph.layout()
   graph.draw('test_clas.png')
 
@@ -69,8 +69,8 @@ if __name__ == "__main__":
     raise ImportError("This example needs Graphviz and either PyGraphviz or Pydot")
 
   plt.title("draw_networkx")
-  pos=nx.graphviz_layout(tree,prog='dot')
-  nx.draw(tree,pos,with_labels=False,arrows=True)
+  pos=nx.graphviz_layout(tree,root = 16, prog='dot')
+  nx.draw(tree,pos,with_labels=True, node_size = 1000)
   nx.draw_networkx_edge_labels(tree,pos)
   plt.savefig('nx_test.png')
   nx.write_dot(tree, 'decision_tree.dot')

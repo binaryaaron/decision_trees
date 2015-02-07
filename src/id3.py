@@ -70,7 +70,7 @@ def build_tree(dna_data):
 
   i = 0
   # continue building when misclassj
-  while i < 4:
+  while i < 6:
     print "Build_Tree: parent_f is %d " % parent_f.index
     # print "Build_Tree: parent_f node's size is %d " % print_node(id3_tree,
         # parent_f)
@@ -81,30 +81,49 @@ def build_tree(dna_data):
     # returns a dict with split data
     split_data = make_subclass_vec(parent_f)
     print "Build_Tree while: split_data is of type %s " % type(split_data)
-    pprint (split_data)
+    # pprint (split_data)
 
     split_length = [ len(split[1]) for split in split_data.iteritems() ] 
 
+    # makde children
     for split in split_data.iteritems():
-      # this split is a tuple (key, val)
+      # this split is a tuple (basepair, data)
       if len(split[1]) < 2:
         # stop and make me a leaf, skip to next
-        print "data too small to split; making leaf"
-        id3_tree.add_node('leaf' + split[0])
-        id3_tree.add_edge(parent_f.index, 'leaf' + split[0], base=split[0]) 
+        # print "data too small to split; making leaf"
+        # label
+        # lab = 'leaf_' + split[0] + str(parent_f.index)
+        # id3_tree.add_node(lab,  data='filler')
+        # id3_tree.add_edge(parent_f.index, lab)
         continue
 
-      # pass just the list of dna and index of split
       child_f = build_node(parent_f, split[1])
       if child_f is None:
         print 'node failed to be built'
-        id3_tree.add_node('+/-', data=['leaf'])
-        id3_tree.add_edge(parent_f, '+/-')
+        # update parent node to be labeld as a leaf depending
+        # lab = '+/-_ ' + str(parent_f.index)
+        # id3_tree.add_node(lab, data=['leaf'])
+        # id3_tree.add_edge(parent_f.index, lab)
         continue
       else:
-        id3_tree.add_node(child_f.index, data=child_f) # don't forget split tuple
-        id3_tree.add_edge(parent_f.index, child_f.index, base=split[0])
+        if child_f.leaf_label == False:
+          id3_tree.add_node(child_f.index, data=child_f)
+          id3_tree.add_edge(parent_f.index, child_f.index, base=split[0])
+        elif child_f.leaf_label == '+':
+          # we have a node with all positive promoters. mark it as such
+          id3_tree.add_node(str(child_f.index) + ' yes' )
+          id3_tree.add_edge(parent_f.index, str(child_f.index) + ' yes',
+              base=split[0] )
+        elif child_f.leaf_label == '-':
+          # we have a node with all neg promoters. mark it as such
+          id3_tree.add_node(str(child_f.index) + ' no' )
+          id3_tree.add_edge(parent_f.index, str(child_f.index) + ' no',
+              base=split[0] )
+
     #update the parent_f for next layer
+    #if id3_tree.successors(parent_f.index) == []:
+
+
     if child_f is not None:
       parent_f = child_f
     else:
@@ -112,7 +131,23 @@ def build_tree(dna_data):
       break
     i += 1
 
+  clean_tree(id3_tree)
   return id3_tree
+
+
+def clean_tree(tree):
+  print "Sucessors of root: %s " % tree.nodes()
+  leaves = [ node for node in tree.nodes() if tree.successors(node) == [] ]
+  print "Printing leaves %s " % leaves
+
+  for node in tree.nodes():
+    if tree.successors(node) == []:
+      pred = tree.predecessors(node)
+      print 'predecessors list: %s ' % pred
+      tree.remove_node(node)
+      tree.add_node('yes')
+      tree.add_edge(pred[0], 'yes')
+
 
 
 def build_node(split_f, split_data):
@@ -121,12 +156,6 @@ def build_node(split_f, split_data):
     Args:
       f (feature): feature we are splitting
   """
-  # print "Build Node: dataset's type is : %s" % type(dataset)
-  # print "Build Node: f_split is type : %s" % type(dataset)
-
-  # list of each feature object, with a column vector of chars
-  # rebuilds the counts for each type of base
-  # i should have used a numpy matrix or something like that for ease.
   subfeature_list = []
   if split_f.index is not None:
     print ('Build Node: Attempting to build a node from %d values' %
@@ -138,6 +167,7 @@ def build_node(split_f, split_data):
   for f in subfeature_list:
     info_gain(f)
 
+
   # gets the max value for information gain 
   gain_list = [f.info_gain for f in subfeature_list]
   print 'highest info gain: %f, lowest IG: %f' % (max(gain_list), min(gain_list))
@@ -146,12 +176,23 @@ def build_node(split_f, split_data):
   # give this feature the data it has to potentially split on
   max_f.data = split_data
 
-  # evaluate the node's info gain
-  if gain_list[maxgain_id] <= 0.1:
-    print "Node is not good enough to add"
-    return None
+  # need to check for all pos and neg and if so, label it aas such
+  if max_f.pos == 0:
+    max_f.leaf_label = '-'
+    return max_f
+  if max_f.neg == 0:
+    max_f.leaf_label = '+'
+    return max_f
 
-  return (max_f)
+  # evaluate the node's info gain
+  if chi_squared(split_f) == True:
+    return max_f
+  else:
+    return None
+  # if gain_list[maxgain_id] <= 0.2:
+  #   print "Node is not good enough to add"
+  #   return None
+
 
 def print_node(g, node_index):
   print 'size of node: '

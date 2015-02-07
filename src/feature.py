@@ -25,6 +25,7 @@ class feature(object):
     data (list): the data that will be present for a if we split upon it. 
                 e.g., if we split on feature f, f.data = subset of data indexed
                 by that feature.
+    leaf_label ( string): label if this is a leaf node.
   """
   def __init__(self, n,a,c,g,t, pos, neg, index):
     # total size of feature
@@ -41,12 +42,13 @@ class feature(object):
     self.info_gain = float(-10)
     self.index = index
     self.data = None
+    self.leaf_label = False
 
   def __str__(self):
-    return "<Feature Obj: \n n ='" + str(self.n) + "'\n bases: '" + str(self.bases) + "' \n info_gain: '"  + str(self.info_gain )
-
-  def print_me(self):
-    print " -- Debug: feature object bases = " 
-    print self.bases
-    print " -- Debug: feature object size = %d "  % self.n
-    print " -- Debug: feature object info_gain = %f " % self.info_gain
+    return (
+        "<Feature Obj: \n ----n = " + str(self.n) +
+        "\n----bases: '" + str(self.bases) +
+        "\n----info_gain: "  + str(self.info_gain )+
+        "\n----self.pos: " + str(self.pos) +
+        "\n----self.neg: " + str(self.neg)
+        )
