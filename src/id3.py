@@ -35,13 +35,28 @@ def build_tree(dna_data):
   # empty graph object
   id3_tree = nx.DiGraph()
 
-  build = True
   ref_data = dna_data
+  subfeature_list = []
   print '********* building root node **********'
-  root_node = build_node(dna_data, None)
+  # builds the first node in the tree
+  for i in range(0, 57): # hardcoded; whatever
+    count_occurances(dna_data, i, subfeature_list)
+
+  # rebuilds subfeature info gain
+  for f in subfeature_list:
+    info_gain(f)
+
+  # gets the max value for information gain 
+  gain_list = [f.info_gain for f in subfeature_list]
+  print 'highest info gain: %f, lowest IG: %f' % (max(gain_list), min(gain_list))
+  maxgain_id = gain_list.index(max(gain_list))
+  root_f = subfeature_list[maxgain_id]
+  # give this feature the data it has to potentially split on
+  root_f.data = dna_data
+
   # make root node
-  id3_tree.add_node(root_node.index, data=ref_data)
-  parent_index = root_node.index
+  id3_tree.add_node(root_f.index, data=root_f)
+  parent_f = root_f
   print "Should just be root node: %s " % id3_tree.nodes()
 
   # networkx search by 
@@ -56,17 +71,17 @@ def build_tree(dna_data):
   i = 0
   # continue building when misclassj
   while i < 4:
-    print "Build_Tree: parent_index is %d " % parent_index
-    print_node(id3_tree, parent_index)
-    # print "Build_Tree: parent_index node's size is %d " % print_node(id3_tree,
-        # parent_index)
-    # set pointer to the parent_index node's data
-    p_data = id3_tree.node[parent_index]['data']
-    print "build: type of p_data: %s" % type(p_data)
+    print "Build_Tree: parent_f is %d " % parent_f.index
+    # print "Build_Tree: parent_f node's size is %d " % print_node(id3_tree,
+        # parent_f)
+    # set pointer to the parent_f node's data
+    # parent_f = id3_tree.node[parent_f]
+    print "build: type of parent_f: %s" % type(parent_f)
 
     # returns a dict with split data
-    split_data = make_subclass_vec(p_data, parent_index)
-    # print "Build_Tree while: split_data is of type %s " % type(split_data)
+    split_data = make_subclass_vec(parent_f)
+    print "Build_Tree while: split_data is of type %s " % type(split_data)
+    pprint (split_data)
 
     split_length = [ len(split[1]) for split in split_data.iteritems() ] 
 
@@ -76,22 +91,22 @@ def build_tree(dna_data):
         # stop and make me a leaf, skip to next
         print "data too small to split; making leaf"
         id3_tree.add_node('leaf' + split[0])
-        id3_tree.add_edge(parent_index, 'leaf' + split[0]) 
+        id3_tree.add_edge(parent_f.index, 'leaf' + split[0]) 
         continue
 
       # pass just the list of dna and index of split
-      child = build_node(split[1], parent_index)
-      if child is None:
+      child_f = build_node(parent_f, split[1])
+      if child_f is None:
         print 'node failed to be built'
         id3_tree.add_node('+/-', data=['leaf'])
-        id3_tree.add_edge(parent_index, '+/-')
+        id3_tree.add_edge(parent_f, '+/-')
         continue
       else:
-        id3_tree.add_node(child.index, data=split[1]) # don't forget split tuple
-        id3_tree.add_edge(parent_index, child.index)
-    #update the parent_index for next layer
-    if child is not None:
-      parent_index = child.index
+        id3_tree.add_node(child_f.index, data=child_f) # don't forget split tuple
+        id3_tree.add_edge(parent_f.index, child_f.index)
+    #update the parent_f for next layer
+    if child_f is not None:
+      parent_f = child_f
     else:
       # get out of loop, all leaves
       break
@@ -104,12 +119,11 @@ def build_tree(dna_data):
   return id3_tree
 
 
-def build_node(dataset, f_split):
+def build_node(split_f, split_data):
   """ build_node provides functionality for building a node in the tree.
     it's a helper function for build_tree, making the recursion a bit easier.
     Args:
-      dataset (list): of dna objects
-      f_split (int): index of the thing on which we are splitting
+      f (feature): feature we are splitting
   """
   # print "Build Node: dataset's type is : %s" % type(dataset)
   # print "Build Node: f_split is type : %s" % type(dataset)
@@ -118,15 +132,11 @@ def build_node(dataset, f_split):
   # rebuilds the counts for each type of base
   # i should have used a numpy matrix or something like that for ease.
   subfeature_list = []
-  if f_split is not None:
-    print 'Build Node: Attempting to build a node from %d values' % len(dataset)
-    for i,item in enumerate(dataset[0].sequence):
-      count_occurances(dataset, i, subfeature_list)
-  else:
-    # builds the first node in the tree
-    print 'Build Node: Attempting to build a node from %d values' % len(dataset)
-    for i in range(0, 57): # hardcoded; whatever
-      count_occurances(dataset, i, subfeature_list)
+  if split_f.index is not None:
+    print ('Build Node: Attempting to build a node from %d values' %
+          len(split_data))
+    for i,item in enumerate(split_data[0].sequence):
+      count_occurances(split_data, i, subfeature_list)
 
   # rebuilds subfeature info gain
   for f in subfeature_list:
@@ -137,9 +147,11 @@ def build_node(dataset, f_split):
   print 'highest info gain: %f, lowest IG: %f' % (max(gain_list), min(gain_list))
   maxgain_id = gain_list.index(max(gain_list))
   max_f = subfeature_list[maxgain_id]
+  # give this feature the data it has to potentially split on
+  max_f.data = split_data
 
   # evaluate the node's info gain
-  if gain_list[maxgain_id] <= 0.01:
+  if gain_list[maxgain_id] <= 0.1:
     print "Node is not good enough to add"
     return None
 
@@ -149,7 +161,7 @@ def print_node(g, node_index):
   print 'size of node: '
   #print len(g.node[node_index]['data'])
 
-def make_subclass_vec(data, feature_index):
+def make_subclass_vec(f):
   """
   Will make a subclass of features for splitting the data.
   Args:
@@ -162,6 +174,8 @@ def make_subclass_vec(data, feature_index):
   # need to partition data based on a,c,t,g so, get unique instances
 
   # dna object where feature at feature index is an 'a'
+  data = f.data
+  feature_index = f.index
   sub_data = {
     'a_sub' : [ pro for pro in data if pro.features[feature_index] is 'a' ],
     'c_sub' : [ pro for pro in data if pro.features[feature_index] is 'c' ],

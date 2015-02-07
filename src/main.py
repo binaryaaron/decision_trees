@@ -15,7 +15,7 @@ from pprint import pprint
 
 # graph tool
 import networkx as nx
-import matplotlib as plt
+import matplotlib.pyplot as plt
 import pygraphviz as pgv
 
 __author__ = "Aaron Gonzales"
@@ -64,10 +64,10 @@ if __name__ == "__main__":
   except ImportError:
     raise ImportError("This example needs Graphviz and either PyGraphviz or Pydot")
 
-  nx.draw(tree, with_labels=False)
-  plt.savefig('circular_tree.png')
-  plt.show()
-
+  plt.title("draw_networkx")
+  pos=nx.graphviz_layout(tree,prog='dot')
+  nx.draw(tree,pos)
+  plt.savefig('nx_test.png')
 
 
 
