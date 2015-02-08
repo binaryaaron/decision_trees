@@ -33,8 +33,7 @@ class DNA(object):
 
   def __str__(self):
     return ('DNA object: \n ' + 
-            str(self.index) + 
-            '\n promoter: ' + self.promoter
+            '\n promoter: ' + str(self.promoter)
             )
 
   def get_info(self):
@@ -42,3 +41,7 @@ class DNA(object):
     print " -- Debug: DNA object promoter class: %s " % self.promoter
     print " -- Debug: DNA object sequence class: %s " % self.sequence
     print " -- Debug: DNA object features class: %s " % self.features
+
+  def base_at_index(self, index):
+    return self.sequence[index]
+
