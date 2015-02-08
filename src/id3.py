@@ -5,12 +5,13 @@ id3.py is a part of the CS529 Machine Learning project
 It provides functionality for building the actual decision tree
 """
 import math
-from feature import feature, Leaf
-from pprint import pprint
 # graph tool
 import networkx as nx
-from metrics import *
+from pprint import pprint
 from Queue import Queue
+# custom modules
+from metrics import *
+from feature import feature, Leaf
 
 __author__ = "Aaron Gonzales"
 __copyright__ = "GPL"
@@ -18,9 +19,6 @@ __license__ = "GPL"
 __version__ = "1.0.1"
 __maintainer__ = "Aaron Gonzales"
 __email__ = "agonzales@cs.unm.edu"
-__status__ = "Development"
-__version__ = "0.1"
-__date__ = "2015-01-20"
 
 
 def build_tree(dna_data):
@@ -114,15 +112,8 @@ def build_tree(dna_data):
           # skip this potential featu. examine this and ensure that it is correct
 
 
-    print "there are now %d nodes in the tree " % nx.number_of_nodes(tree)
-    pprint ( dict([(n,d) for n,d in tree.nodes(data=True)] ))
-      #there must be four children here
-    #update the parent_f for next layer
-    #if tree.successors(parent_f.index) == []:
-    # evaluate the node's info gain
-    # parent_f = child_f
-    # i += 1
-  # clean_tree(tree)
+    # print "there are now %d nodes in the tree " % nx.number_of_nodes(tree)
+    # pprint ( dict([(n,d) for n,d in tree.nodes(data=True)] ))
   return tree
 
 
@@ -239,5 +230,4 @@ def count_occurances(data, feature_index, feature_vec):
   f =  feature(len(pos) + len(neg), base_a, base_c, base_g, base_t, len(pos),
                len(neg), feature_index)
   feature_vec.append(f)
-
 
