@@ -47,7 +47,7 @@ class feature(object):
      raise AttributeError("this feature is missing an index somewhere")
 
   def __str__(self):
-    return str(self.index)
+    return str(self.index * self.n * self.pos)
   # def __str__(self):
   #   return (
   #       "<Feature Obj: \n ----n = " + str(self.n) +
@@ -77,4 +77,5 @@ class Leaf(object):
     self.data = data
 
   def __str__(self):
-    return str(self.label)
+    # for the damn nodes to work
+    return str(hash(self))
