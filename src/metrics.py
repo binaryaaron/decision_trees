@@ -109,12 +109,12 @@ def chi_squared(f, threshold=95):
         }
       }
 
-  print str(f)
+  # print str(f)
   for base in f.bases:
     base_pos = base[ 0 ]
     base_neg = base[ 1 ]
     base_tot = base[ 2 ]
-    print ' this base is : %s ' % str(base)
+    # print ' this base is : %s ' % str(base)
     if base_tot == 0:
       dof -= 1
       continue
@@ -123,9 +123,9 @@ def chi_squared(f, threshold=95):
     chi_pos =((base_pos - expected_pos)**2) / expected_pos
     chi_neg = ((base_neg - expected_neg)**2) / expected_neg
     chisq += chi_pos + chi_neg
-  print ("chi_squared minium value for dof: %d and threshold %d: %f " %
-      (dof, threshold, chisq_mins[threshold][dof]) )
-  print "computed chi_squared value : %d" % chisq
+  # print ("chi_squared minium value for dof: %d and threshold %d: %f " %
+      # (dof, threshold, chisq_mins[threshold][dof]) )
+  # print "computed chi_squared value : %d" % chisq
 
   return chisq > chisq_mins[threshold][dof]
 
