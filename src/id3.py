@@ -6,7 +6,6 @@ It provides functionality for building the actual decision tree
 """
 import math
 from feature import feature, Leaf
-import DNA as dna
 from pprint import pprint
 # graph tool
 import networkx as nx

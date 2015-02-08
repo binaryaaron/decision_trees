@@ -11,7 +11,7 @@ import id3
 
 from feature import feature
 from dna import DNA
-from train import train
+import classify as classify
 
 # from pprint import pprint
 
@@ -78,7 +78,7 @@ def draw_tree(tree):
   # thesting
   order =  nx.topological_sort(tree)
   print "topological sort"
-  print [str(node) for node in order]
+  print [str(node.index) for node in order]
 
 def main(args):
   data = []
@@ -89,7 +89,7 @@ def main(args):
   train_data = []
   train_file = '../data/validation.txt'
   read_file(train_data, train_file)
-  train(train_data)
+  classify.classify(tree, data)
 
   print 'goodbye'
 
