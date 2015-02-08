@@ -6,7 +6,7 @@ It provides functionality for building the actual decision tree
 """
 import math
 from feature import feature, Leaf
-from dna import DNA
+import DNA as dna
 from pprint import pprint
 # graph tool
 import networkx as nx
@@ -52,6 +52,7 @@ def build_tree(dna_data):
     # give this feature the data it has to potentially split on
   root_f.data = dna_data
     # make root node
+  root_f.is_root = True
   tree.add_node(root_f, lab=root_f.index)
   parent_f = root_f
   q = Queue()
@@ -240,21 +241,4 @@ def count_occurances(data, feature_index, feature_vec):
                len(neg), feature_index)
   feature_vec.append(f)
 
-
-def bfs(g, source, dna):
-  """ traversal of the tree to find classification
-  Args:
-    g (networkx) graph: the decision tree
-    source (root node):
-    dna (DNA): the sequence to classify
-  """
-
-  queue = deque([(None, source)])
-  enqueued = set([source])
-  while queue:
-    parent,n = queue.popleft()
-    yield parent,n
-    new = set(g[n]) - enqueued
-    enqueued = new
-    queue.extend([(n, child) for child in new])
 
