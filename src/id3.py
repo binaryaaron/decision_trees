@@ -107,12 +107,11 @@ def build_tree(dna_data):
           tree.add_node(child_f, lab = child_f.index)
           tree.add_edge(parent_f, child_f, base=base[0])
           q.put(child_f)
-          continue
         else:
           leaf = Leaf('x', child_f)
           tree.add_node(leaf, lab = leaf.label)
+          tree.add_edge(parent_f, leaf, base=base[0])
           # skip this potential featu. examine this and ensure that it is correct
-          continue
 
 
     print "there are now %d nodes in the tree " % nx.number_of_nodes(tree)
@@ -121,8 +120,8 @@ def build_tree(dna_data):
     #update the parent_f for next layer
     #if tree.successors(parent_f.index) == []:
     # evaluate the node's info gain
-    parent_f = child_f
-    i += 1
+    # parent_f = child_f
+    # i += 1
   # clean_tree(tree)
   return tree
 
@@ -241,4 +240,14 @@ def count_occurances(data, feature_index, feature_vec):
                len(neg), feature_index)
   feature_vec.append(f)
 
+
+def bfs(g, source):
+  queue = deque([(None, source)])
+  enqueued = set([source])
+  while queue:
+    parent,n = queue.popleft()
+    yield parent,n
+    new = set(g[n]) - enqueued
+    enqueued = new
+    queue.extend([(n, child) for child in new])
 
