@@ -31,72 +31,74 @@ def build_tree(dna_data):
       rootnode_id: id for , may not need this
     Return (Graph): Networkx Graph object that is complete.
   """
-  DEBUG = True
-  # empty graph object
   tree = nx.DiGraph()
 
   ref_data = dna_data
   subfeature_list = []
-  print '********* building root node **********'
+  # print '********* building root node **********'
   # builds the first node in the tree
   for i in range(0, 57): # hardcoded; whatever
     count_occurances(dna_data, i, subfeature_list)
-
   # rebuilds subfeature info gain
   for f in subfeature_list:
     info_gain(f)
 
-  # gets the max value for information gain 
+    # gets the max value for information gain 
   gain_list = [f.info_gain for f in subfeature_list]
-  print 'highest info gain: %f, lowest IG: %f' % (max(gain_list), min(gain_list))
+    # print 'highest info gain: %f, lowest IG: %f' % (max(gain_list), min(gain_list))
   maxgain_id = gain_list.index(max(gain_list))
   root_f = subfeature_list[maxgain_id]
-  # give this feature the data it has to potentially split on
+    # give this feature the data it has to potentially split on
   root_f.data = dna_data
-
-  # make root node
+    # make root node
   tree.add_node(root_f, data=root_f)
   parent_f = root_f
-  print "Should just be root node: %s " % tree.nodes()
 
   i = 0
   while i < 6:
     print "Build_Tree: parent_f is %s " % str(parent_f)
 
-    # returns a dict with split data
-    split_data = make_subclass_vec(parent_f)
-    print "Build_Tree while: split_data is of type %s " % type(split_data)
-    pprint (split_data)
+    # returns a dict with base data
+    base_data = make_subclass_vec(parent_f)
+    print "Build_Tree while: base_data is of type %s " % type(base_data)
+    pprint (base_data)
     # makde children, a,c,g,t
     # basically have to decide if the node will be a new internal node or a
     # leaf accept state
-    for split in split_data.iteritems():
-        # this split is a tuple (basepair, data)
-        if len(split[1]) < 2:
+    for base in base_data.iteritems():
+        # this base is a tuple (basepair, data)
+        # if len(base[1]) < 2:
+          # continue
+        yes, label = check_if_same_class(base)
+        if yes is True:
+          # this might be an issue with non-uniqe nodes
+          tree.add_node(label + str(yes) + base[0])
+          tree.add_edge(parent_f, label + str(yes) + base[0], base=base[0])
           continue
 
-        child_f = build_feature(parent_f, split[1])
+
+        child_f = build_feature(parent_f, base[1])
         # need to check for all pos and neg and if so, label it aas such
         # and call it a leaf node
         if child_f.pos == 0:
           child_f.leaf_label = '-'
           # we have a node with all neg promoters. mark it as such
           tree.add_node(child_f)
-          tree.add_edge(parent_f, child_f, base=split[0] )
+          tree.add_edge(parent_f, child_f, base=base[0] )
           continue
         if child_f.neg == 0:
           # we have a node with all positive promoters. mark it as such
           child_f.leaf_label = '+'
           tree.add_node(child_f)
-          tree.add_edge(parent_f, child_f, base=split[0] )
+          tree.add_edge(parent_f, child_f, base=base[0] )
           continue
 
         if child_f.leaf_label == False: # not a leaf
           # test that little dude
           if chi_squared(child_f) == True:
-            # add it as a node and split on it
+            # add it as a node and base on it
             tree.add_node(child_f, data=child_f)
-            tree.add_edge(parent_f, child_f, base=split[0])
+            tree.add_edge(parent_f, child_f, base=base[0])
           else:
             # skip this node. examine this and ensure that it is correct
             continue
@@ -110,7 +112,7 @@ def build_tree(dna_data):
     parent_f = child_f
     i += 1
 
-  clean_tree(tree)
+  # clean_tree(tree)
   return tree
 
 
@@ -127,33 +129,53 @@ def clean_tree(tree):
       tree.add_node('yes')
       tree.add_edge(pred[0], 'yes')
 
+def check_if_same_class(base):
+  """
+    Returns if the classes in the data split are all the same or not.
+    convenience function
+  """
+  pos = [p for p in base[1] if p.promoter is True]
+  neg = [p for p in base[1] if p.promoter is False]
+
+  if len(pos) == (len(pos) + len(neg)):
+    return (True, '+')
+  elif len(neg) == (len(pos) + len(neg)):
+    return (True, '-')
+  else:
+    len(pos) == len(pos) + len(neg)
+    return (False, '')
 
 
-def build_feature(parent_f, split_data):
+def build_feature(parent_f, base):
   """ build_feature provides functionality for building a node in the tree.
     it's a helper function for build_tree, making the recursion a bit easier.
     Args:
-      f (feature): feature we are splitting
+      f (feature): feature we are baseting
   """
   subfeature_list = []
-  if parent_f.index is not None:
+  if len(base) >= 1:
     print ('Build Node: Attempting to build a node from %d values' %
-          len(split_data))
-    for i,item in enumerate(split_data[0].sequence):
-      count_occurances(split_data, i, subfeature_list)
+          len(base))
+    for i,item in enumerate(base[0].sequence):
+      count_occurances(base, i, subfeature_list)
+  else:
+    return feature(len(pos) + len(neg), base_a, base_c, base_g, base_t, len(pos),
+               len(neg), feature_index)
 
+  print subfeature_list
   # rebuilds subfeature info gain
   for f in subfeature_list:
     info_gain(f)
 
-
-  # gets the max value for information gain 
+  # gets the max value for information gain
   gain_list = [f.info_gain for f in subfeature_list]
   print 'highest info gain: %f, lowest IG: %f' % (max(gain_list), min(gain_list))
   maxgain_id = gain_list.index(max(gain_list))
   max_f = subfeature_list[maxgain_id]
-  # give this feature the data it has to potentially split on
-  max_f.data = split_data
+  # give this feature the data it has to potentially base on
+  print 'assignging data to new max feature'
+  pprint (base)
+  max_f.data = base
 
   return max_f
 
