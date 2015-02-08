@@ -57,6 +57,7 @@ def info_gain(f):
   """
   DEBUG = False
   # check for empty values
+  # TODO check this
   if 0 in [f.pos, f.n, f.neg]:
     f.info_gain = 0
     return
@@ -78,7 +79,7 @@ def info_gain(f):
   info_gain = info_f - info_sum
   f.info_gain = info_gain
 
-  
+
 def chi_squared(f, threshold=95):
   """
   Performs the chi-squared test needed for testing effectiveness of a split.
@@ -127,6 +128,8 @@ def chi_squared(f, threshold=95):
       # (dof, threshold, chisq_mins[threshold][dof]) )
   # print "computed chi_squared value : %d" % chisq
 
+  if dof == 0:
+    dof = 1
   return chisq > chisq_mins[threshold][dof]
 
 

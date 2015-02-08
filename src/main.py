@@ -3,14 +3,16 @@
 main.py is the primary file that runs the decsion tree parser
 
 """
-import id3
-from feature import feature
-from dna import DNA
-
 import sys
 import argparse
 import os
 import csv
+import id3
+
+from feature import feature
+from dna import DNA
+from train import train
+
 # from pprint import pprint
 
 # graph tool
@@ -43,17 +45,8 @@ def read_file(data_list, filename):
 
 
 def draw_tree(tree):
-  # print (tree.adjacency_list())
-  # print tree.nodes()
-  # print nx.info(tree)
-  # print nx.adjacency_matrix(tree)
-  graph = nx.to_agraph(tree)
-  # print graph
-  print graph.layout()
-  graph.draw('tree.png')
-
   # make new labels for edges:
-  from pprint import pprint
+  # from pprint import pprint
 
   # fun way to get the labels correct for the edges instead of having
   # the damn kev, val pair printed by default
@@ -87,34 +80,17 @@ def draw_tree(tree):
   print "topological sort"
   print [str(node) for node in order]
 
-  # # build tree
-  # start = order[0]
-  # nodes = [order[0]] # start with first node in topological order
-  # labels = {}
-  # print "edges"
-  # topo_tree = nx.Graph()
-  # while nodes:
-  #     source = nodes.pop()
-  #     labels[source] = source
-  #     for target in tree.neighbors(source):
-  #         if target in topo_tree:
-  #             t = uuid.uuid1() # new unique id
-  #         else:
-  #             t = target
-  #         labels[t] = target
-  #         topo_tree.add_edge(source,t)
-  #         print source,target,source,t
-  #         nodes.append(target)
-
-  # nx.draw(topo_tree,labels=labels)
-  # plt.show()
-
 def main(args):
   data = []
   # read the file 
   read_file(data, args.filename)
   tree = id3.build_tree(data)
   draw_tree(tree)
+  train_data = []
+  train_file = '../data/validation.txt'
+  read_file(train_data, train_file)
+  train(train_data)
+
   print 'goodbye'
 
 if __name__ == "__main__":
