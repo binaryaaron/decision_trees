@@ -231,17 +231,24 @@ def count_occurances(data, feature_index, feature_vec):
   neg = [ pro.features[feature_index] for pro in data if pro.promoter is False]
 
   # get base type totals and make a feature object
-  base_a = (pos.count('a'), neg.count('a'), pos.count('a') + neg.count('a')  )
-  base_c = (pos.count('c'), neg.count('c'), pos.count('c') + neg.count('c')  )
-  base_g = (pos.count('g'), neg.count('g'), pos.count('g') + neg.count('g')  )
-  base_t = (pos.count('t'), neg.count('t'), pos.count('t') + neg.count('t')  )
+  base_a = (pos.count('a'), neg.count('a'), pos.count('a') + neg.count('a'))
+  base_c = (pos.count('c'), neg.count('c'), pos.count('c') + neg.count('c'))
+  base_g = (pos.count('g'), neg.count('g'), pos.count('g') + neg.count('g'))
+  base_t = (pos.count('t'), neg.count('t'), pos.count('t') + neg.count('t'))
 
   f =  feature(len(pos) + len(neg), base_a, base_c, base_g, base_t, len(pos),
                len(neg), feature_index)
   feature_vec.append(f)
 
 
-def bfs(g, source):
+def bfs(g, source, dna):
+  """ traversal of the tree to find classification
+  Args:
+    g (networkx) graph: the decision tree
+    source (root node):
+    dna (DNA): the sequence to classify
+  """
+
   queue = deque([(None, source)])
   enqueued = set([source])
   while queue:
