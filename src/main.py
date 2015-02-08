@@ -11,12 +11,17 @@ import sys
 import argparse
 import os
 import csv
-from pprint import pprint
+# from pprint import pprint
 
 # graph tool
-import networkx as nx
-import matplotlib.pyplot as plt
-import pygraphviz as pgv
+try:
+  import networkx as nx
+  from networkx import graphviz_layout
+  import pygraphviz as pgv
+  import matplotlib.pyplot as plt
+except ImportError:
+  raise ImportError("This program requires Graphviz, pygraphviz, networkx, and matplotlib")
+
 
 __author__ = "Aaron Gonzales"
 __copyright__ = "GPL"
@@ -62,12 +67,6 @@ if __name__ == "__main__":
   # print graph
   graph.layout()
   graph.draw('test_clas.png')
-
-
-  try:
-    from networkx import graphviz_layout
-  except ImportError:
-    raise ImportError("This example needs Graphviz and either PyGraphviz or Pydot")
 
   plt.title("draw_networkx")
   pos=nx.graphviz_layout(tree,root = 16, prog='dot')
