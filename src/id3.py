@@ -82,43 +82,31 @@ def build_tree(dna_data):
     split_data = make_subclass_vec(parent_f)
     print "Build_Tree while: split_data is of type %s " % type(split_data)
     # pprint (split_data)
-
-    split_length = [ len(split[1]) for split in split_data.iteritems() ] 
-
     # makde children
     for split in split_data.iteritems():
-      # this split is a tuple (basepair, data)
-      if len(split[1]) < 2:
-        # stop and make me a leaf, skip to next
-        # print "data too small to split; making leaf"
-        # label
-        # lab = 'leaf_' + split[0] + str(parent_f.index)
-        # id3_tree.add_node(lab,  data='filler')
-        # id3_tree.add_edge(parent_f.index, lab)
-        continue
+        # this split is a tuple (basepair, data)
+        if len(split[1]) < 2:
+          continue
 
-      child_f = build_node(parent_f, split[1])
-      if child_f is None:
-        print 'node failed to be built'
-        # update parent node to be labeld as a leaf depending
-        # lab = '+/-_ ' + str(parent_f.index)
-        # id3_tree.add_node(lab, data=['leaf'])
-        # id3_tree.add_edge(parent_f.index, lab)
-        continue
-      else:
-        if child_f.leaf_label == False:
-          id3_tree.add_node(child_f.index, data=child_f)
-          id3_tree.add_edge(parent_f.index, child_f.index, base=split[0])
-        elif child_f.leaf_label == '+':
-          # we have a node with all positive promoters. mark it as such
-          id3_tree.add_node(str(child_f.index) + ' yes' )
-          id3_tree.add_edge(parent_f.index, str(child_f.index) + ' yes',
-              base=split[0] )
-        elif child_f.leaf_label == '-':
-          # we have a node with all neg promoters. mark it as such
-          id3_tree.add_node(str(child_f.index) + ' no' )
-          id3_tree.add_edge(parent_f.index, str(child_f.index) + ' no',
-              base=split[0] )
+        child_f = build_node(parent_f, split[1])
+        if child_f is None:
+          print 'node failed to be built'
+          continue
+        else:
+          if child_f.leaf_label == False:
+            id3_tree.add_node(child_f.index, data=child_f)
+            id3_tree.add_edge(parent_f.index, child_f.index, base=split[0])
+          elif child_f.leaf_label == '+':
+            # we have a node with all positive promoters. mark it as such
+            id3_tree.add_node(str(child_f.index) + ' yes' )
+            id3_tree.add_edge(parent_f.index, str(child_f.index) + ' yes',
+                base=split[0] )
+          elif child_f.leaf_label == '-':
+            # we have a node with all neg promoters. mark it as such
+            id3_tree.add_node(str(child_f.index) + ' no' )
+            id3_tree.add_edge(parent_f.index, str(child_f.index) + ' no',
+                base=split[0] )
+      #there must be four children here
 
     #update the parent_f for next layer
     #if id3_tree.successors(parent_f.index) == []:
