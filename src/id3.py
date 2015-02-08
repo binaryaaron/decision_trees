@@ -5,12 +5,13 @@ id3.py is a part of the CS529 Machine Learning project
 It provides functionality for building the actual decision tree
 """
 import math
-from feature import feature
+from feature import feature, Leaf
 from dna import DNA
 from pprint import pprint
 # graph tool
 import networkx as nx
 from metrics import *
+from Queue import Queue
 
 __author__ = "Aaron Gonzales"
 __copyright__ = "GPL"
@@ -51,29 +52,33 @@ def build_tree(dna_data):
     # give this feature the data it has to potentially split on
   root_f.data = dna_data
     # make root node
-  tree.add_node(root_f, data=root_f)
+  tree.add_node(root_f, lab=root_f.index)
   parent_f = root_f
+  q = Queue()
+  q.put(parent_f)
 
   i = 0
-  while i < 6:
+  # i'm so dumb why didn't i put the nodes in a queue
+
+  while q.empty() == False:
     print "Build_Tree: parent_f is %s " % str(parent_f)
+    parent_f = q.get()
 
     # returns a dict with base data
     base_data = make_subclass_vec(parent_f)
-    print "Build_Tree while: base_data is of type %s " % type(base_data)
-    pprint (base_data)
     # makde children, a,c,g,t
     # basically have to decide if the node will be a new internal node or a
     # leaf accept state
     for base in base_data.iteritems():
         # this base is a tuple (basepair, data)
-        # if len(base[1]) < 2:
-          # continue
         yes, label = check_if_same_class(base)
         if yes is True:
           # this might be an issue with non-uniqe nodes
-          tree.add_node(label + str(yes) + base[0])
-          tree.add_edge(parent_f, label + str(yes) + base[0], base=base[0])
+          # tree.add_node(label + str(yes) + base[0], lab=label)
+          leaf = Leaf(label, base)
+          tree.add_node(leaf, lab = leaf.label)
+          # tree.add_edge(parent_f, label + str(yes) + base[0], base=base[0])
+          tree.add_edge(parent_f, leaf, base=base[0])
           continue
 
 
@@ -81,53 +86,46 @@ def build_tree(dna_data):
         # need to check for all pos and neg and if so, label it aas such
         # and call it a leaf node
         if child_f.pos == 0:
-          child_f.leaf_label = '-'
+          #child_f.leaf_label = '-'
+          leaf = Leaf('-', child_f)
           # we have a node with all neg promoters. mark it as such
-          tree.add_node(child_f)
-          tree.add_edge(parent_f, child_f, base=base[0] )
+          tree.add_node(leaf, lab = '-' + str(child_f.index) )
+          tree.add_edge(parent_f, leaf, base=base[0] )
           continue
         if child_f.neg == 0:
           # we have a node with all positive promoters. mark it as such
-          child_f.leaf_label = '+'
-          tree.add_node(child_f)
+          leaf = Leaf('-', child_f)
+          #child_f.leaf_label = '+'
+          tree.add_node(leaf, lab = '+'+ str(child_f.index) )
           tree.add_edge(parent_f, child_f, base=base[0] )
           continue
 
-        if child_f.leaf_label == False: # not a leaf
-          # test that little dude
-          if chi_squared(child_f) == True:
-            # add it as a node and base on it
-            tree.add_node(child_f, data=child_f)
-            tree.add_edge(parent_f, child_f, base=base[0])
-          else:
-            # skip this node. examine this and ensure that it is correct
-            continue
+        # if child_f.leaf_label == False: # not a leaf
+        #   # test that little dude
+        if chi_squared(child_f) == True:
+          # add it as a node and base on it
+          tree.add_node(child_f, lab = child_f.index)
+          tree.add_edge(parent_f, child_f, base=base[0])
+          q.put(child_f)
+          continue
+        else:
+          leaf = Leaf('x', child_f)
+          tree.add_node(leaf, lab = leaf.label)
+          # skip this potential featu. examine this and ensure that it is correct
+          continue
 
 
+    print "there are now %d nodes in the tree " % nx.number_of_nodes(tree)
+    pprint ( dict([(n,d) for n,d in tree.nodes(data=True)] ))
       #there must be four children here
-
     #update the parent_f for next layer
     #if tree.successors(parent_f.index) == []:
     # evaluate the node's info gain
     parent_f = child_f
     i += 1
-
   # clean_tree(tree)
   return tree
 
-
-def clean_tree(tree):
-  print "Sucessors of root: %s " % tree.nodes()
-  leaves = [ node for node in tree.nodes() if tree.successors(node) == [] ]
-  print "Printing leaves %s " % leaves
-
-  for node in tree.nodes():
-    if tree.successors(node) == []:
-      pred = tree.predecessors(node)
-      print 'predecessors list: %s ' % pred
-      tree.remove_node(node)
-      tree.add_node('yes')
-      tree.add_edge(pred[0], 'yes')
 
 def check_if_same_class(base):
   """
@@ -142,8 +140,8 @@ def check_if_same_class(base):
   elif len(neg) == (len(pos) + len(neg)):
     return (True, '-')
   else:
-    len(pos) == len(pos) + len(neg)
-    return (False, '')
+    #len(pos) == (len(pos) + len(neg))
+    return (False, 'a')
 
 
 def build_feature(parent_f, base):
@@ -154,27 +152,29 @@ def build_feature(parent_f, base):
   """
   subfeature_list = []
   if len(base) >= 1:
-    print ('Build Node: Attempting to build a node from %d values' %
+    print ('Build feature: Attempting to build a node from %d values' %
           len(base))
     for i,item in enumerate(base[0].sequence):
       count_occurances(base, i, subfeature_list)
   else:
-    return feature(len(pos) + len(neg), base_a, base_c, base_g, base_t, len(pos),
-               len(neg), feature_index)
+    # be wary of this
+    return None
 
-  print subfeature_list
   # rebuilds subfeature info gain
   for f in subfeature_list:
     info_gain(f)
 
+  if len(subfeature_list) is not 57:
+    raise ValueError('check the list being made in build_feature')
+
   # gets the max value for information gain
   gain_list = [f.info_gain for f in subfeature_list]
-  print 'highest info gain: %f, lowest IG: %f' % (max(gain_list), min(gain_list))
+  # print 'highest info gain: %f, lowest IG: %f' % (max(gain_list), min(gain_list))
   maxgain_id = gain_list.index(max(gain_list))
   max_f = subfeature_list[maxgain_id]
   # give this feature the data it has to potentially base on
-  print 'assignging data to new max feature'
-  pprint (base)
+  # print 'assignging data to new max feature'
+  # pprint (base)
   max_f.data = base
 
   return max_f
@@ -183,10 +183,6 @@ def build_feature(parent_f, base):
   #   print "Node is not good enough to add"
   #   return None
 
-
-def print_node(g, node_index):
-  print 'size of node: '
-  #print len(g.node[node_index]['data'])
 
 def make_subclass_vec(f):
   """
