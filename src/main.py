@@ -43,6 +43,46 @@ def read_file(data_list, filename):
       # slow way of growing a list but it works for this purpose
       data_list.append(dna)
 
+
+def draw_tree(tree):
+  # print (tree.adjacency_list())
+  # print tree.nodes()
+  # print nx.info(tree)
+  # print nx.adjacency_matrix(tree)
+  graph = nx.to_agraph(tree)
+  # print graph
+  graph.layout()
+  graph.draw('tree.png')
+
+  # make new labels for edges:
+  from pprint import pprint
+
+  # fun way to get the labels correct for the edges instead of having
+  # the damn kev, val pair printed by default
+  # this returns the attributes in a dict for the right key, 'base'
+  # and that's passed directly into draw_networkx_edge_labels
+  edge_att = nx.get_edge_attributes(tree, 'base')
+
+  node_att = tree.nodes()
+  pprint (node_att)
+
+  pos=nx.graphviz_layout(tree, prog='dot')
+  nx.draw(tree, pos, with_labels=True,  node_size = 1000)
+  nx.draw_networkx_edge_labels(tree, pos, edge_labels=edge_att)
+
+  plt.title("ID3 tree")
+  plt.savefig('decision_tree.png')
+  nx.write_dot(tree, 'decision_tree.dot')
+
+
+def main(args):
+  data = []
+  # read the file 
+  read_file(data, args.filename)
+  tree = id3.build_tree(data)
+  draw_tree(tree)
+  print 'goodbye'
+
 if __name__ == "__main__":
   # gotta parse those args
   parser = argparse.ArgumentParser(description = "DNA Promoter Decision Tree maker thingy")
@@ -51,33 +91,8 @@ if __name__ == "__main__":
   parser.add_argument("metric",
       help = 'the metric you want to use, ID3 or MCE')
   args = parser.parse_args()
-
-  data = []
-  # read the file 
-  read_file(data, args.filename)
-
-  print "Size of the read data: %d" % len(data)
-
-  tree = id3.build_tree(data)
-  # print (tree.adjacency_list())
-  # print tree.nodes()
-  # print nx.info(tree)
-  # print nx.adjacency_matrix(tree)
-  graph = nx.to_agraph(tree)
-  # print graph
-  graph.layout()
-  graph.draw('test_clas.png')
-
-  plt.title("draw_networkx")
-  pos=nx.graphviz_layout(tree,root = 16, prog='dot')
-  nx.draw(tree,pos,with_labels=True, node_size = 1000)
-  nx.draw_networkx_edge_labels(tree,pos)
-  plt.savefig('nx_test.png')
-  nx.write_dot(tree, 'decision_tree.dot')
+  main(args)
 
 
 
-  ## cross validate?
-  ## train
-  ## test
 
