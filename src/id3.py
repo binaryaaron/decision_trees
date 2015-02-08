@@ -30,11 +30,8 @@ def build_tree(dna_data):
     Return (Graph): Networkx Graph object that is complete.
   """
   tree = nx.DiGraph()
-
   ref_data = dna_data
   subfeature_list = []
-  # print '********* building root node **********'
-  # builds the first node in the tree
   for i in range(0, 57): # hardcoded; whatever
     count_occurances(dna_data, i, subfeature_list)
   # rebuilds subfeature info gain
@@ -51,67 +48,37 @@ def build_tree(dna_data):
     # make root node
   root_f.is_root = True
   tree.add_node(root_f, lab=root_f.index)
-  parent_f = root_f
   q = Queue()
-  q.put(parent_f)
+  q.put(root_f)
 
-  i = 0
-  # i'm so dumb why didn't i put the nodes in a queue
-
-  while q.empty() == False:
-    print "Build_Tree: parent_f is %s " % str(parent_f)
+  # main dynamic way to build the tree
+  while q.empty() is False:
     parent_f = q.get()
-
-    # returns a dict with base data
+    print "Build_Tree: parent_f is %s " % str(parent_f.index)
+    # returns a dict with base data indexed by nucleotide
     base_data = make_subclass_vec(parent_f)
     # makde children, a,c,g,t
-    # basically have to decide if the node will be a new internal node or a
-    # leaf accept state
     for base in base_data.iteritems():
-        # this base is a tuple (basepair, data)
-        yes, label = check_if_same_class(base)
-        if yes is True:
-          # this might be an issue with non-uniqe nodes
-          # tree.add_node(label + str(yes) + base[0], lab=label)
-          leaf = Leaf(label, base)
-          tree.add_node(leaf, lab = leaf.label)
-          # tree.add_edge(parent_f, label + str(yes) + base[0], base=base[0])
-          tree.add_edge(parent_f, leaf, base=base[0])
-          continue
+      # this base is a tuple (basepair, data)
+      # check if this needs to be an accepeting leaf node
+      yes, label = check_if_same_class(base)
+      if yes is True:
+        leaf = Leaf(label, base)
+        tree.add_node(leaf, lab = leaf.label)
+        tree.add_edge(parent_f, leaf, base=base[0])
+        continue
 
-
-        child_f = build_feature(parent_f, base[1])
-        # need to check for all pos and neg and if so, label it aas such
-        # and call it a leaf node
-        if child_f.pos == 0:
-          #child_f.leaf_label = '-'
-          leaf = Leaf('-', child_f)
-          # we have a node with all neg promoters. mark it as such
-          tree.add_node(leaf, lab = '-' + str(child_f.index) )
-          tree.add_edge(parent_f, leaf, base=base[0] )
-          continue
-        if child_f.neg == 0:
-          # we have a node with all positive promoters. mark it as such
-          leaf = Leaf('-', child_f)
-          #child_f.leaf_label = '+'
-          tree.add_node(leaf, lab = '+'+ str(child_f.index) )
-          tree.add_edge(parent_f, child_f, base=base[0] )
-          continue
-
-        # if child_f.leaf_label == False: # not a leaf
-        #   # test that little dude
-        if chi_squared(child_f) == True:
-          # add it as a node and base on it
-          tree.add_node(child_f, lab = child_f.index)
-          tree.add_edge(parent_f, child_f, base=base[0])
-          q.put(child_f)
-        else:
-          leaf = Leaf('x', child_f)
-          tree.add_node(leaf, lab = leaf.label)
-          tree.add_edge(parent_f, leaf, base=base[0])
-          # skip this potential featu. examine this and ensure that it is correct
-
-
+      child_f = build_feature(parent_f, base[1])
+      if chi_squared(child_f) == True:
+        # add it as a node to further split (e.g., put it on the queue)
+        tree.add_node(child_f, lab = child_f.index)
+        tree.add_edge(parent_f, child_f, base=base[0])
+        q.put(child_f)
+      else:
+        #do majority vote here
+        leaf = majority_vote(child_f)
+        tree.add_node(leaf, lab = leaf.label)
+        tree.add_edge(parent_f, leaf, base=base[0])
     # print "there are now %d nodes in the tree " % nx.number_of_nodes(tree)
     # pprint ( dict([(n,d) for n,d in tree.nodes(data=True)] ))
   return tree
@@ -230,4 +197,26 @@ def count_occurances(data, feature_index, feature_vec):
   f =  feature(len(pos) + len(neg), base_a, base_c, base_g, base_t, len(pos),
                len(neg), feature_index)
   feature_vec.append(f)
+
+def majority_vote(f):
+  """ tells a node what type of label it should have based on the greater
+  number of observations in the feature. in equal observations, labels them all
+  as negative.
+  Args:
+    f (feature): the feature we need to split
+  return: 
+    Leaf node object with correct class label
+  """
+  lab = ''
+  if f.pos > f.neg:
+    lab = '+'
+  elif f.pos < f.neg:
+    lab = '-'
+  else:
+    lab = '-'
+  return Leaf(lab, f)
+
+
+
+
 
