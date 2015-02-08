@@ -43,6 +43,8 @@ class feature(object):
     self.index = index
     self.data = None
     self.leaf_label = False
+    if self.index == None:
+     raise AttributeError("this feature is missing an index somewhere")
 
   def __str__(self):
     return str(self.index)
@@ -56,18 +58,23 @@ class feature(object):
   #       )
 
 class Node(object):
-    def __init__(self, value, children = []):
-        self.value = value
-        self.children = children
+  def __init__(self, value, children = []):
+    self.value = value
+    self.children = children
 
-    def __repr__(self, level=0):
-        ret = "\t"*level+repr(self.value)+"\n"
-        for child in self.children:
-            ret += child.__repr__(level+1)
-        return ret
+  def __repr__(self, level=0):
+    ret = "\t"*level+repr(self.value)+"\n"
+    for child in self.children:
+      ret += child.__repr__(level+1)
+    return ret
 
-class Leaf:
-        """
-        """
-        def __init__(self, value):
-                self.value = value
+class Leaf(object):
+  """
+  convenience class for a leaf node in the tree.
+  """
+  def __init__(self, label, data):
+    self.label = label
+    self.data = data
+
+  def __str__(self):
+    return str(self.label)
