@@ -25,15 +25,16 @@ __maintainer__ = "Aaron Gonzales"
 __email__ = "agonzales@cs.unm.edu"
 
 
-def read_file(data_list, args):
+def read_file(data_list, filename):
   # TODO need to modify this to fit the new data  file from LEARN not UCI
-  with open(args.filename, 'rb') as f:
-    reader = csv.reader(f, delimiter=',')
+  with open(filename, 'rb') as f:
+    reader = csv.reader(f, delimiter=' ')
     for line in f:
       # strips all whitespace within fields, including tabs and newlines without seperators 
       # as the file is full of weird extra spaces and such
-      gene = [field.strip() for field in line.split(',')]
-      dna = DNA(gene[0],gene[1],gene[2])
+      gene = [field.strip() for field in line.split(' ')]
+      print gene
+      dna = DNA(gene[0],gene[1])
       # slow way of growing a list but it works for this purpose
       data_list.append(dna)
 
@@ -48,7 +49,7 @@ if __name__ == "__main__":
 
   data = []
   # read the file 
-  read_file(data, args)
+  read_file(data, args.filename)
 
   print "Size of the read data: %d" % len(data)
 

@@ -20,8 +20,7 @@ class DNA(object):
   Attributes:
     features: Dictionary of the above sequence.
     """
-  def __init__(self, promoter, name, sequence):
-    self.name = name
+  def __init__(self, sequence, promoter):
     self.sequence = list(sequence)
     if promoter is '+':
       self.promoter = True
