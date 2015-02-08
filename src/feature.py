@@ -45,10 +45,29 @@ class feature(object):
     self.leaf_label = False
 
   def __str__(self):
-    return (
-        "<Feature Obj: \n ----n = " + str(self.n) +
-        "\n----bases: '" + str(self.bases) +
-        "\n----info_gain: "  + str(self.info_gain )+
-        "\n----self.pos: " + str(self.pos) +
-        "\n----self.neg: " + str(self.neg)
-        )
+    return str(self.index)
+  # def __str__(self):
+  #   return (
+  #       "<Feature Obj: \n ----n = " + str(self.n) +
+  #       "\n----bases: '" + str(self.bases) +
+  #       "\n----info_gain: "  + str(self.info_gain )+
+  #       "\n----self.pos: " + str(self.pos) +
+  #       "\n----self.neg: " + str(self.neg)
+  #       )
+
+class Node(object):
+    def __init__(self, value, children = []):
+        self.value = value
+        self.children = children
+
+    def __repr__(self, level=0):
+        ret = "\t"*level+repr(self.value)+"\n"
+        for child in self.children:
+            ret += child.__repr__(level+1)
+        return ret
+
+class Leaf:
+        """
+        """
+        def __init__(self, value):
+                self.value = value

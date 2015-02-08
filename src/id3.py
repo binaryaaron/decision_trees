@@ -33,7 +33,7 @@ def build_tree(dna_data):
   """
   DEBUG = True
   # empty graph object
-  id3_tree = nx.DiGraph()
+  tree = nx.DiGraph()
 
   ref_data = dna_data
   subfeature_list = []
@@ -55,72 +55,63 @@ def build_tree(dna_data):
   root_f.data = dna_data
 
   # make root node
-  id3_tree.add_node(root_f.index, data=root_f)
+  tree.add_node(root_f, data=root_f)
   parent_f = root_f
-  print "Should just be root node: %s " % id3_tree.nodes()
-
-  # networkx search by 
-  # everything is a dict of dicts and so on
-  # so each node has a simple key
-  # and optional value, which is a dict
-  # example goes like this, getting the nodes with data = nums ( alist)
-  # a = g.nodes(data=nums)
-  # a[0][1]['data']
-  # e.g. first node, first list, first key
+  print "Should just be root node: %s " % tree.nodes()
 
   i = 0
-  # continue building when misclassj
   while i < 6:
-    print "Build_Tree: parent_f is %d " % parent_f.index
-    # print "Build_Tree: parent_f node's size is %d " % print_node(id3_tree,
-        # parent_f)
-    # set pointer to the parent_f node's data
-    # parent_f = id3_tree.node[parent_f]
-    print "build: type of parent_f: %s" % type(parent_f)
+    print "Build_Tree: parent_f is %s " % str(parent_f)
 
     # returns a dict with split data
     split_data = make_subclass_vec(parent_f)
     print "Build_Tree while: split_data is of type %s " % type(split_data)
-    # pprint (split_data)
-    # makde children
+    pprint (split_data)
+    # makde children, a,c,g,t
+    # basically have to decide if the node will be a new internal node or a
+    # leaf accept state
     for split in split_data.iteritems():
         # this split is a tuple (basepair, data)
         if len(split[1]) < 2:
           continue
 
-        child_f = build_node(parent_f, split[1])
-        if child_f is None:
-          print 'node failed to be built'
+        child_f = build_feature(parent_f, split[1])
+        # need to check for all pos and neg and if so, label it aas such
+        # and call it a leaf node
+        if child_f.pos == 0:
+          child_f.leaf_label = '-'
+          # we have a node with all neg promoters. mark it as such
+          tree.add_node(child_f)
+          tree.add_edge(parent_f, child_f, base=split[0] )
           continue
-        else:
-          if child_f.leaf_label == False:
-            id3_tree.add_node(child_f.index, data=child_f)
-            id3_tree.add_edge(parent_f.index, child_f.index, base=split[0])
-          elif child_f.leaf_label == '+':
-            # we have a node with all positive promoters. mark it as such
-            id3_tree.add_node(str(child_f.index) + ' yes' )
-            id3_tree.add_edge(parent_f.index, str(child_f.index) + ' yes',
-                base=split[0] )
-          elif child_f.leaf_label == '-':
-            # we have a node with all neg promoters. mark it as such
-            id3_tree.add_node(str(child_f.index) + ' no' )
-            id3_tree.add_edge(parent_f.index, str(child_f.index) + ' no',
-                base=split[0] )
+        if child_f.neg == 0:
+          # we have a node with all positive promoters. mark it as such
+          child_f.leaf_label = '+'
+          tree.add_node(child_f)
+          tree.add_edge(parent_f, child_f, base=split[0] )
+          continue
+
+        if child_f.leaf_label == False: # not a leaf
+          # test that little dude
+          if chi_squared(child_f) == True:
+            # add it as a node and split on it
+            tree.add_node(child_f, data=child_f)
+            tree.add_edge(parent_f, child_f, base=split[0])
+          else:
+            # skip this node. examine this and ensure that it is correct
+            continue
+
+
       #there must be four children here
 
     #update the parent_f for next layer
-    #if id3_tree.successors(parent_f.index) == []:
-
-
-    if child_f is not None:
-      parent_f = child_f
-    else:
-      # get out of loop, all leaves
-      break
+    #if tree.successors(parent_f.index) == []:
+    # evaluate the node's info gain
+    parent_f = child_f
     i += 1
 
-  clean_tree(id3_tree)
-  return id3_tree
+  clean_tree(tree)
+  return tree
 
 
 def clean_tree(tree):
@@ -138,14 +129,14 @@ def clean_tree(tree):
 
 
 
-def build_node(split_f, split_data):
-  """ build_node provides functionality for building a node in the tree.
+def build_feature(parent_f, split_data):
+  """ build_feature provides functionality for building a node in the tree.
     it's a helper function for build_tree, making the recursion a bit easier.
     Args:
       f (feature): feature we are splitting
   """
   subfeature_list = []
-  if split_f.index is not None:
+  if parent_f.index is not None:
     print ('Build Node: Attempting to build a node from %d values' %
           len(split_data))
     for i,item in enumerate(split_data[0].sequence):
@@ -164,19 +155,8 @@ def build_node(split_f, split_data):
   # give this feature the data it has to potentially split on
   max_f.data = split_data
 
-  # need to check for all pos and neg and if so, label it aas such
-  if max_f.pos == 0:
-    max_f.leaf_label = '-'
-    return max_f
-  if max_f.neg == 0:
-    max_f.leaf_label = '+'
-    return max_f
+  return max_f
 
-  # evaluate the node's info gain
-  if chi_squared(split_f) == True:
-    return max_f
-  else:
-    return None
   # if gain_list[maxgain_id] <= 0.2:
   #   print "Node is not good enough to add"
   #   return None
