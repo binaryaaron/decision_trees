@@ -43,6 +43,9 @@ class feature(object):
     self.index = index
     self.data = None
     self.leaf_label = False
+    self.is_root = False
+    self.is_leaf = False
+    self.label = 'feature'
     if self.index == None:
      raise AttributeError("this feature is missing an index somewhere")
 
@@ -75,6 +78,8 @@ class Leaf(object):
   def __init__(self, label, data):
     self.label = label
     self.data = data
+    self.is_leaf = True
+    self.index = -1
 
   def __str__(self):
     # for the damn nodes to work
