@@ -89,15 +89,15 @@ def check_if_same_class(base):
     Returns if the classes in the data split are all the same or not.
     convenience function
   """
-  pos = [p for p in base[1] if p.promoter is True]
-  neg = [p for p in base[1] if p.promoter is False]
+  pos = len([p for p in base[1] if p.promoter is True])
+  neg = len([p for p in base[1] if p.promoter is False])
+  total = pos + neg
 
-  if len(pos) == (len(pos) + len(neg)):
+  if pos == total:
     return (True, '+')
-  elif len(neg) == (len(pos) + len(neg)):
+  elif neg == total:
     return (True, '-')
   else:
-    #len(pos) == (len(pos) + len(neg))
     return (False, 'a')
 
 
