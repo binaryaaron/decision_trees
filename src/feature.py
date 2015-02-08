@@ -50,31 +50,26 @@ class feature(object):
      raise AttributeError("this feature is missing an index somewhere")
 
   def __str__(self):
+    """ Makes a pseudo-hash out of its items
+    this is entirely for NetowrkX's drawing of the tree, due to some weird
+    issue with GraphViz formats. GraphViz will not have duplicatly labeled
+    nodes, even though they theyselves are unique.
+    NetworkX uses the __str__ override to print
+    """
     return str(self.index * self.n * self.pos)
-  # def __str__(self):
-  #   return (
-  #       "<Feature Obj: \n ----n = " + str(self.n) +
-  #       "\n----bases: '" + str(self.bases) +
-  #       "\n----info_gain: "  + str(self.info_gain )+
-  #       "\n----self.pos: " + str(self.pos) +
-  #       "\n----self.neg: " + str(self.neg)
-  #       )
-
-class Node(object):
-  def __init__(self, value, children = []):
-    self.value = value
-    self.children = children
-
-  def __repr__(self, level=0):
-    ret = "\t"*level+repr(self.value)+"\n"
-    for child in self.children:
-      ret += child.__repr__(level+1)
-    return ret
 
 class Leaf(object):
   """
   convenience class for a leaf node in the tree.
+  Args:
+    label (str): the classification label
+    data (list): potentially useful holder, may remove
+  Attributes :
+    is_leaf :  helper for drawing and searching through the completed tree, as
+              NetworkX is wonky about searching for keys and values that are
+              not similar in all the  graph.
   """
+
   def __init__(self, label, data):
     self.label = label
     self.data = data
@@ -82,5 +77,10 @@ class Leaf(object):
     self.index = -1
 
   def __str__(self):
-    # for the damn nodes to work
+    """ Makes a pseudo-hash out of its items
+    this is entirely for NetowrkX's drawing of the tree, due to some weird
+    issue with GraphViz formats. GraphViz will not have duplicatly labeled
+    nodes, even though they theyselves are unique.
+    NetworkX uses the __str__ override to print
+    """
     return str(hash(self))
