@@ -68,7 +68,7 @@ def info_gain(f):
   f.info_gain = info_gain
 
 
-def chi_squared(f, threshold=95):
+def chi_squared(f, confidence=95):
   """
   Performs the chi-squared test needed for testing effectiveness of a split.
   Args:
@@ -125,10 +125,10 @@ def chi_squared(f, threshold=95):
       chi_pos =((base_pos - expected_pos)**2) / expected_pos
       chi_neg = ((base_neg - expected_neg)**2) / expected_neg
     chisq += chi_pos + chi_neg
-  # print ("chi_squared minium value for dof: %f and threshold %d: %f " %
-  #     (dof, threshold, chisq_mins[threshold][dof]) )
+  # print ("chi_squared minium value for dof: %f and confidence %d: %f " %
+  #     (dof, confidence, chisq_mins[confidence][dof]) )
   # print "computed chi_squared value : %f" % chisq
 
   if dof == 0:
     dof = 1
-  return chisq > chisq_mins[threshold][dof]
+  return chisq > chisq_mins[confidence][dof]
