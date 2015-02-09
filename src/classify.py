@@ -90,6 +90,8 @@ def classify(d_tree, test_data, train, confidence, ipython):
   labels = ['True', 'False']
   matrix = confusion_matrix(results, labels)
   print(matrix)
+
+  plt.figure(figsize=(4,4))
   plot(matrix, labels)
   plt.title('Confusion matrix for ' + fig_name + '; '
       + confidence + '% confidence')

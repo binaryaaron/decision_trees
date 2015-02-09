@@ -89,11 +89,11 @@ def main(parser):
 
   decision_tree = id3.build_tree(train_data, args.confidence)
   draw_tree(decision_tree, str(args.confidence))
-  classify.classify(decision_tree,
-                    train_data,
-                    True,
-                    str(args.confidence),
-                    args.ipython)
+  # classify.classify(decision_tree,
+  #                   train_data,
+  #                   True,
+  #                   str(args.confidence),
+  #                   args.ipython)
 
   validation_data = []
   read_file(validation_data, args.validation)
@@ -101,8 +101,6 @@ def main(parser):
                     validation_data,
                     False, str(args.confidence),
                     args.ipython)
-
-  print 'goodbye'
 
 
 if __name__ == "__main__":
