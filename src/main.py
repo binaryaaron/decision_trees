@@ -79,8 +79,6 @@ def main(parser):
   """ Drives the program.
   """
   args = parser.parse_args()
-  print args.train
-  print args.mce
   if args.confidence not in (0,95,99):
     print ("chisq argument invalid; must be either 0,95,99")
     sys.exit()
@@ -140,4 +138,3 @@ if __name__ == "__main__":
       type=int
       )
   main(parser)
-
