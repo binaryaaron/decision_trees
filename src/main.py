@@ -126,13 +126,10 @@ if __name__ == "__main__":
       help='this is an ipython session and we want to draw the figs, not save them',
       action='store_true')
   parser.add_argument(
-      '-mce',
-      help='use the misclassifcation error algorithm',
-      action='store_true')
-  parser.add_argument(
       '-x',
       '--confidence',
       help='threshold confidence level for growing the decision tree. Can either be (0, 95, 99)',
+      required=True,
       type=int
       )
   main(parser)

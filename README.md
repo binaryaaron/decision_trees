@@ -1,6 +1,11 @@
 # Decision Tree Project
+Aaron Gonzales
+agonzales@cs.unm.edu
+2015-02-08
 
 Builds a decision tree classifier for the UCI promoter dataset.
+Report can be found
+[here](http://nbviewer.ipython.org/github/xysmas/decision_trees/blob/master/src/decision_tree_report.ipynb)
 
 # REQUIREMENTS:
 There are several dependencies:
@@ -18,11 +23,22 @@ or
 ```
 easy_install -U networkx
 ```
+
+# Installing
+You may download the repositiory from this link https://github.com/xysmas/decision_trees/archive/master.zip
+or just unzip the attached file:
+
+  unzip agonzales_decision_tree.zip
+
+In the created directory, there will be this README.md file (can be opened with
+any real text editor), a data directory, and a src directory
+navigate to the src directory and you may run it from there
+
 # Running
 The program may be ran like this:
+
 ```
-$ python main.py -h
-usage: main.py [-h] -t TRAIN -v VALIDATION [--ipython] [-mce] [-x CONFIDENCE]
+usage: main.py [-h] -t TRAIN -v VALIDATION [--ipython] -x CONFIDENCE
 
 Implements the classic ID3 algorithm for classifying a set of dna promoters.
 
@@ -35,15 +51,14 @@ optional arguments:
                         the validation data
   --ipython             this is an ipython session and we want to draw the
                         figs, not save them
-  -mce                  use the misclassifcation error algorithm
   -x CONFIDENCE, --confidence CONFIDENCE
                         threshold confidence level for growing the decision
                         tree. Can either be (0, 95, 99)
 ```
- 
-Example, for specifying a 95% confidence level
+
+For example, running and specifying a 95% confidence level:
 ```
-python main.py --train ../data/training.txt --validation
- ../data/validation.txt --confidence 95
+python main.py --train ../data/training.txt --validation ../data/validation.txt --confidence 95
 ```
-and the program will write several plots to your current directory.
+and the program will write several plots to your current directory while
+displaying minor output.
