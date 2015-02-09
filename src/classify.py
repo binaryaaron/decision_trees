@@ -47,13 +47,14 @@ def search_tree(d_tree, root, dna_n):
           break
 
 
-def classify(d_tree, test_data, train, confidence):
+def classify(d_tree, test_data, train, confidence, ipython):
   """ gets the accuracy of a given file based on the built decision tree.
   Args:
     d_tree (networkx tree): the built decision tree
     test_data (list): data to classify
     train (boolean): flag to specify it this is a train set or validation set
     confidence (string): value used for confidence
+    ipython (boolean): If true, show the plot and not save it
   Return: (list) the results?
   """
   fig_name = ''
@@ -92,6 +93,9 @@ def classify(d_tree, test_data, train, confidence):
   plot(matrix, labels)
   plt.title('Confusion matrix for ' + fig_name + '; '
       + confidence + '% confidence')
+  if ipython:
+    plt.show()
+    return
   plt.savefig('confusion_matrix_' +fig_name + '.pdf')
 
 

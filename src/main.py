@@ -49,7 +49,7 @@ def read_file(data_list, filename):
       data_list.append(dna)
 
 
-def draw_tree(tree):
+def draw_tree(tree, conf):
   """ Draws the tree to a png file using NetworkX, Matplotlib, and GraphViz
   """
   # fun way to get the labels correct for the edges instead of having
@@ -71,7 +71,7 @@ def draw_tree(tree):
   nx.draw_networkx_edge_labels(tree, pos, edge_labels=edge_att)
 
   plt.axis('off')
-  plt.title("Decision Tree for DNA Promoter Data")
+  plt.title("Decision Tree for DNA Promoter Data; " + conf + "% confidence")
   plt.savefig('decision_tree.pdf')
 
 
@@ -89,13 +89,20 @@ def main(parser):
   # read the file
   read_file(train_data, args.train)
 
-  tree = id3.build_tree(train_data, args.confidence)
-  draw_tree(tree)
-  classify.classify(tree, train_data, True, str(args.confidence))
+  decision_tree = id3.build_tree(train_data, args.confidence)
+  draw_tree(decision_tree, str(args.confidence))
+  classify.classify(decision_tree,
+                    train_data,
+                    True,
+                    str(args.confidence),
+                    args.ipython)
 
   validation_data = []
   read_file(validation_data, args.validation)
-  classify.classify(tree, validation_data, False, str(args.confidence))
+  classify.classify(decision_tree,
+                    validation_data,
+                    False, str(args.confidence),
+                    args.ipython)
 
   print 'goodbye'
 
@@ -118,6 +125,10 @@ if __name__ == "__main__":
       '--validation',
       help = 'the validation data',
       required=True)
+  parser.add_argument(
+      '--ipython',
+      help='this is an ipython session and we want to draw the figs, not save them',
+      action='store_true')
   parser.add_argument(
       '-mce',
       help='use the misclassifcation error algorithm',
