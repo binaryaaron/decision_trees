@@ -21,7 +21,7 @@ __maintainer__ = "Aaron Gonzales"
 __email__ = "agonzales@cs.unm.edu"
 
 
-def build_tree(dna_data, grow_tree=False):
+def build_tree(dna_data, confidence):
   """
     Main function for building the tree. Recursively builds going top down
     Args:
@@ -69,7 +69,7 @@ def build_tree(dna_data, grow_tree=False):
         continue
 
       child_f = build_feature(parent_f, base[1])
-      if chi_squared(child_f, grow_tree) == True:
+      if chi_squared(child_f, confidence) == True:
         # add it as a node to further split (e.g., put it on the queue)
         tree.add_node(child_f, lab = child_f.index)
         tree.add_edge(parent_f, child_f, base=base[0])
