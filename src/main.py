@@ -89,13 +89,13 @@ def main(parser):
   # read the file
   read_file(train_data, args.train)
 
-  tree = id3.build_tree(train_data, int(args.confidence))
+  tree = id3.build_tree(train_data, args.confidence)
   draw_tree(tree)
-  classify.classify(tree, train_data, True)
+  classify.classify(tree, train_data, True, str(args.confidence))
 
   validation_data = []
   read_file(validation_data, args.validation)
-  classify.classify(tree, validation_data, False)
+  classify.classify(tree, validation_data, False, str(args.confidence))
 
   print 'goodbye'
 
