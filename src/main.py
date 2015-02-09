@@ -85,15 +85,16 @@ def main(parser):
     print ("chisq argument invalid; must be either 0,95,99")
     sys.exit()
   print args.confidence
-  data = []
-  # read the file
-  read_file(data, args.train)
-
-  tree = id3.build_tree(data, int(args.confidence))
-  draw_tree(tree)
   train_data = []
+  # read the file
   read_file(train_data, args.train)
-  classify.classify(tree, data)
+
+  tree = id3.build_tree(train_data, int(args.confidence))
+  draw_tree(tree)
+
+  validation_data = []
+  read_file(validation_data, args.validation)
+  classify.classify(tree, validation_data )
 
   print 'goodbye'
 
@@ -102,8 +103,8 @@ if __name__ == "__main__":
   """Main entry point, only parses args and passes them on
   """
   parser = argparse.ArgumentParser(
-    description = "Implements the classic ID3 algorithm for classifying a set of dna promoters.",
-    epilog="thank you; goodbye")
+    description =
+    "Implements the classic ID3 algorithm for classifying a set of dna promoters.")
 
   parser.add_argument(
       "-t",
@@ -127,6 +128,4 @@ if __name__ == "__main__":
       type=int
       )
   main(parser)
-
-
 
