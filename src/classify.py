@@ -47,13 +47,19 @@ def search_tree(d_tree, root, dna_n):
           break
 
 
-def classify(d_tree, test_data):
+def classify(d_tree, test_data, train):
   """ gets the accuracy of a given file based on the built decision tree.
   Args:
     d_tree (networkx tree): the built decision tree
-    test_data (list) of 
+    test_data (list): data to classify
+    train (boolean): flag to specify it this is a train set or validation set
   Return: (list) the results?
   """
+  fig_name = ''
+  if train:
+    fig_name = 'training'
+  else:
+    fig_name = 'validation'
   DEBUG = True
   if DEBUG:
     from pprint import pprint
@@ -83,8 +89,8 @@ def classify(d_tree, test_data):
   matrix = confusion_matrix(results, labels)
   print(matrix)
   plot(matrix, labels)
-  plt.title("Confusion matrix for validation set")
-  plt.savefig('confusion_matrix.pdf')
+  plt.title('Confusion matrix for ' + fig_name)
+  plt.savefig('confusion_matrix_' +fig_name + '.pdf')
 
 
 def confusion_matrix(results, labels):
