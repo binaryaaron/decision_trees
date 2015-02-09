@@ -1,6 +1,8 @@
 # Decision Tree Project
 Aaron Gonzales
+
 agonzales@cs.unm.edu
+
 2015-02-08
 
 Builds a decision tree classifier for the UCI promoter dataset.
