@@ -99,7 +99,7 @@ def check_if_same_class(base):
         return (False, 'a')
 
 
-def build_feature(base):
+def build_feature(parent_f, base):
     """ build_feature provides functionality for building a node in the tree.
         it's a helper function for build_tree, making the recursion a bit easier.
         Args:
@@ -109,7 +109,7 @@ def build_feature(base):
     if len(base) >= 1:
         print ('Build feature: Attempting to build a node from %d values' %
                len(base))
-        for i in enumerate(base[0].sequence):
+        for i,item in enumerate(base[0].sequence):
             count_occurances(base, i, subfeature_list)
     else:
         # be wary of this
