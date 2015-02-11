@@ -5,7 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 # import id3 as id3
 # import feature
-from Queue import Queue
+from queue import Queue
 
 __author__ = "Aaron Gonzales"
 __copyright__ = "GPL"
@@ -86,7 +86,7 @@ def classify(d_tree, test_data, train, confidence, ipython):
     # pprint (finished)
     labels = ['True', 'False']
     matrix = confusion_matrix(results, labels)
-    print matrix
+    print(matrix)
 
     plt.figure(figsize=(4, 4))
     plot(matrix, labels)

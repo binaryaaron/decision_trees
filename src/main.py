@@ -6,18 +6,16 @@ and draws the output.
 import argparse
 import csv
 import os
+import sys
 from pprint import pprint
 
-import id3
-from feature import feature
+import id3 as id3
 from dna import DNA
 import classify as classify
 
 # graph tool
 try:
     import networkx as nx
-    from networkx import graphviz_layout
-    import pygraphviz as pgv
     import matplotlib.pyplot as plt
 except ImportError:
     raise ImportError("This program requires Graphviz, pygraphviz, networkx, and matplotlib")
@@ -37,13 +35,13 @@ def read_file(data_list, filename):
                 data_list (list) : the empty list you want to put data into
                 filename (str) : path to the file you want to open
     """
-    with open(filename, 'rb') as f:
+    with open(filename, newline='') as f:
         reader = csv.reader(f, delimiter=' ')
-        for line in f:
+        for line in reader:
             # splits the line into the part with the promoter and the sequence for easy
             # processing
-            gene = [field.strip() for field in line.split(' ')]
-            dna = DNA(gene[0], gene[1])
+            # gene = [field.strip() for field in line.split(' ')]
+            dna = DNA(line[0], line[1])
             # slow way of growing a list but it works for this purpose
             data_list.append(dna)
 
@@ -79,9 +77,9 @@ def main(parser):
     """
     args = parser.parse_args()
     if args.confidence not in (0, 95, 99):
-        print "chisq argument invalid; must be either 0, 95, 99"
+        print("chisq argument invalid; must be either 0, 95, 99")
         sys.exit()
-    print args.confidence
+    print(args.confidence)
     train_data = []
     # read the file
     read_file(train_data, args.train)
@@ -102,19 +100,22 @@ if __name__ == "__main__":
     """Main entry point, only parses args and passes them on
     """
     parser = argparse.ArgumentParser(description=
-                                    "Implements the classic ID3 algorithm for classifying a set of dna promoters.")
+                                     'Implements the classic ID3 algorithm' \
+                                     'for classifying a set of dna promoters.')
 
     parser.add_argument("-t", "--train",
-            help='the data on which you wish to train e.g. \"../data/training.txt\" ',
-            required=True)
-    parser.add_argument( '-v', '--validation',
-            help='the validation data',
-            required=True)
-    parser.add_argument( '--ipython',
-            help='this is an ipython session and we want to draw the figs, not save them',
-            action='store_true')
-    parser.add_argument( '-x', '--confidence',
-            help='threshold confidence level for growing the decision tree. Can either be (0, 95, 99)',
-            required=True,
-            type=int)
+                        help='the data on which you wish to train e.g. \"../data/training.txt\" ',
+                        required=True)
+    parser.add_argument('-v', '--validation',
+                        help='the validation data',
+                        required=True)
+    parser.add_argument('--ipython',
+                        help='this is an ipython session and we ' \
+                        'want to draw the figs, not save them',
+                        action='store_true')
+    parser.add_argument('-x', '--confidence',
+                        help=('threshold confidence level for growing the' \
+                              'decision tree. Can either be (0, 95, 99)'),
+                        required=True,
+                        type=int)
     main(parser)

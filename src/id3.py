@@ -7,9 +7,9 @@ It provides functionality for building the actual decision tree
 # graph tool
 import networkx as nx
 from pprint import pprint
-from Queue import Queue
+from queue import Queue
 # custom modules
-from metrics import *
+import metrics
 from feature import feature, Leaf
 
 __author__ = "Aaron Gonzales"
@@ -34,7 +34,7 @@ def build_tree(dna_data, confidence):
         count_occurances(dna_data, i, subfeature_list)
     # rebuilds subfeature info gain
     for f in subfeature_list:
-        info_gain(f)
+        metrics.info_gain(f)
 
         # gets the max value for information gain
     gain_list = [f.info_gain for f in subfeature_list]
@@ -52,11 +52,11 @@ def build_tree(dna_data, confidence):
     # main dynamic way to build the tree
     while q.empty() is False:
         parent_f = q.get()
-        print "Build_Tree: parent_f is %s " % str(parent_f.index)
+        print("Build_Tree: parent_f is %s " % str(parent_f.index))
         # returns a dict with base data indexed by nucleotide
         base_data = make_subclass_vec(parent_f)
         # makde children, a,c,g,t
-        for base in base_data.iteritems():
+        for base in iter(base_data.items()):
             # this base is a tuple (basepair, data)
             # check if this needs to be an accepeting leaf node
             yes, label = check_if_same_class(base)
@@ -67,7 +67,7 @@ def build_tree(dna_data, confidence):
                 continue
 
             child_f = build_feature(parent_f, base[1])
-            if chi_squared(child_f, confidence) == True:
+            if metrics.chi_squared(child_f, confidence) == True:
                 # add it as a node to further split (e.g., put it on the queue)
                 tree.add_node(child_f, lab=child_f.index)
                 tree.add_edge(parent_f, child_f, base=base[0])
@@ -117,7 +117,7 @@ def build_feature(parent_f, base):
 
     # rebuilds subfeature info gain
     for f in subfeature_list:
-        info_gain(f)
+        metrics.info_gain(f)
 
     if len(subfeature_list) is not 57:
         raise ValueError('check the list being made in build_feature')

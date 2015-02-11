@@ -50,16 +50,15 @@ def info_gain(f):
     # need to calc info gain for the full feature
     info_f = -(f.pos/f.n * math.log(f.pos/f.n, 2)) - (f.neg/f.n * math.log(f.neg/f.n, 2))
     if DEBUG:
-        print "The set's    information is: %f" % info_f
-
+        print("The set's    information is: %f" % info_f)
     info = float(0)
     info_sum = float(0)
     for base in f.bases:
         info = base[2]/f.n * entropy(base, f.n)
         info_sum += info
         if DEBUG:
-            print 'for loop in info gain: done'
-            print base, info, info_sum
+            print('for loop in info gain: done')
+            print(base, info, info_sum)
 
     info_gain = info_f - info_sum
     f.info_gain = info_gain

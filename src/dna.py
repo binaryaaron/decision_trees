@@ -38,10 +38,9 @@ class DNA(object):
 
     def get_info(self):
         """Returns a debugging statement about the object"""
-        print " -- Debug: DNA object name class: %s " % self.name
-        print " -- Debug: DNA object promoter class: %s " % self.promoter
-        print " -- Debug: DNA object sequence class: %s " % self.sequence
-        print " -- Debug: DNA object features class: %s " % self.features
+        print(" -- Debug: DNA object promoter class: %s " % self.promoter)
+        print(" -- Debug: DNA object sequence class: %s " % self.sequence)
+        print(" -- Debug: DNA object features class: %s " % self.features)
 
     def base_at_index(self, index):
         """Returns the base of this dna at a given index. for convenience"""
